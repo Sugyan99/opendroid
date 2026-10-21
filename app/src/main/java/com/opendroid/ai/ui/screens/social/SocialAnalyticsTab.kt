@@ -26,6 +26,7 @@ import com.opendroid.ai.ui.components.DonutChart
 import com.opendroid.ai.ui.components.SimpleBarChart
 import com.opendroid.ai.ui.components.SimpleLineChart
 import com.opendroid.ai.ui.theme.AppTheme
+import java.util.Locale
 
 @Composable
 fun SocialAnalyticsTab(
@@ -95,7 +96,7 @@ fun SocialAnalyticsTab(
             ) {
                 AnalyticsMetricBox(
                     title = "Engagement",
-                    value = summary?.averageEngagementRate?.let { "${String.format("%.1f", it)}%" } ?: "0.0%",
+                    value = summary?.averageEngagementRate?.let { "${String.format(Locale.ROOT, "%.1f", it)}%" } ?: "0.0%",
                     delta = "Active",
                     modifier = Modifier.weight(1f)
                 )
