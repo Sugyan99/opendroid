@@ -18,11 +18,11 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
 
     override fun read(serverId: String): McpCredentialStoreResult =
         when (val result = records.read(storageKey(serverId), aad(serverId))) {
-            is SecretRecordResult.Success -> CredentialStoreResult.Success(
+            is SecretRecordResult.Success -> McpCredentialStoreResult.Success(
                 result.value?.let { String(it, StandardCharsets.UTF_8) }
             )
-            SecretRecordResult.Unrecoverable -> CredentialStoreResult.CredentialsMustBeReentered
-            SecretRecordResult.StorageUnavailable -> CredentialStoreResult.StorageUnavailable
+            SecretRecordResult.Unrecoverable -> McpCredentialStoreResult.CredentialsMustBeReentered
+            SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
 
     override fun write(serverId: String, token: String): CredentialStoreResult {
