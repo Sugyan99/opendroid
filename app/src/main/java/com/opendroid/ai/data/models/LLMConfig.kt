@@ -50,6 +50,14 @@ data class LLMConfig(
     val copilotUrl: String = "",
     val multiAgentModeEnabled: Boolean = false,
     val showFloatingButton: Boolean = true,
+    /** Enables notification alerts for the always-on assistant. Off until explicitly enabled. */
+    val alwaysOnNotificationsEnabled: Boolean = false,
+    /** Treat Android high-priority notification events as interruption candidates. */
+    val alwaysOnHighPriorityInterrupts: Boolean = true,
+    /** Packages the user explicitly trusts for an immediate, discreet voice alert. */
+    val alwaysOnImportantPackages: Set<String> = emptySet(),
+    /** Packages excluded from proactive notification handling. */
+    val alwaysOnMutedPackages: Set<String> = emptySet(),
     val isDarkMode: Boolean = true,
     val lastModelFetch: Map<String, Long> = emptyMap(), // Provider -> last fetch timestamp
     val modelCache: Map<String, List<AIModel>> = emptyMap() // Provider -> cached AIModels list
