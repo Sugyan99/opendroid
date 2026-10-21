@@ -1707,6 +1707,116 @@ fun SettingsScreen(
                 }
             }
 
+            // Always-on notification intelligence
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, BorderColor, RoundedCornerShape(12.dp)),
+                    colors = CardDefaults.cardColors(containerColor = CardBackground)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "ALWAYS-ON ASSISTANT",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            color = AccentCyan
+                        )
+                        Text(
+                            text = "Receive discreet alerts for important notifications while OpenDroid is active. Normal notifications are stored without interrupting your conversation.",
+                            fontSize = 12.sp,
+                            color = TextSecondary
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Proactive notification alerts", color = TextPrimary, fontSize = 14.sp)
+                                Text("Off until you enable it", color = TextSecondary, fontSize = 11.sp)
+                            }
+                            Switch(
+                                checked = config.alwaysOnNotificationsEnabled,
+                                onCheckedChange = viewModel::updateAlwaysOnNotifications
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Interrupt for high-priority events", color = TextPrimary, fontSize = 14.sp)
+                                Text("Android notification priority is only a signal", color = TextSecondary, fontSize = 11.sp)
+                            }
+                            Switch(
+                                checked = config.alwaysOnHighPriorityInterrupts,
+                                enabled = config.alwaysOnNotificationsEnabled,
+                                onCheckedChange = viewModel::updateAlwaysOnHighPriorityInterrupts
+                            )
+                        }
+                        var importantPackagesText by remember(config.alwaysOnImportantPackages) {
+                            mutableStateOf(config.alwaysOnImportantPackages.joinToString(","))
+                        }
+                        OutlinedTextField(
+                            value = importantPackagesText,
+                            onValueChange = { importantPackagesText = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Important app package IDs") },
+                            placeholder = { Text("com.whatsapp, com.google.android.gm") },
+                            supportingText = { Text("Comma-separated package IDs. These apps may trigger a discreet voice alert.") },
+                            singleLine = false,
+                            enabled = config.alwaysOnNotificationsEnabled,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AccentCyan,
+                                unfocusedBorderColor = BorderColor,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+                        var mutedPackagesText by remember(config.alwaysOnMutedPackages) {
+                            mutableStateOf(config.alwaysOnMutedPackages.joinToString(","))
+                        }
+                        OutlinedTextField(
+                            value = mutedPackagesText,
+                            onValueChange = { mutedPackagesText = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Muted app package IDs") },
+                            placeholder = { Text("com.instagram.android") },
+                            supportingText = { Text("Comma-separated packages ignored by proactive alerting.") },
+                            singleLine = false,
+                            enabled = config.alwaysOnNotificationsEnabled,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AccentCyan,
+                                unfocusedBorderColor = BorderColor,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = config.alwaysOnNotificationsEnabled,
+                            onClick = {
+                                viewModel.updateAlwaysOnImportantPackages(
+                                    importantPackagesText.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+                                )
+                                viewModel.updateAlwaysOnMutedPackages(
+                                    mutedPackagesText.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+                                )
+                            },
+                            border = BorderStroke(1.dp, AccentCyan)
+                        ) {
+                            Text("Save notification rules", color = AccentCyan)
+                        }
+                    }
+                }
+            }
+
             // Planning & Automation Preferences Card
             item {
                 Card(
