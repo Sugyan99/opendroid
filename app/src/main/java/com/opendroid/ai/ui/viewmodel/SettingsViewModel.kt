@@ -735,6 +735,24 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateAlwaysOnSensorsEnabled(enabled: Boolean) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnSensorsEnabled = enabled)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnSensorsEnabled = enabled)
+            }
+        }
+    }
+
+    fun updateAlwaysOnSensorTypes(types: Set<Int>) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnSensorTypes = types)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnSensorTypes = types)
+            }
+        }
+    }
+
     fun updateShowFloatingButton(enabled: Boolean) {
         _llmConfig.value = _llmConfig.value.copy(showFloatingButton = enabled)
         viewModelScope.launch {
