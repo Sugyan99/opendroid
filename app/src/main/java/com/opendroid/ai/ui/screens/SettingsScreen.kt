@@ -78,6 +78,7 @@ fun SettingsScreen(
     onNavigateToPermissions: () -> Unit = {},
     onNavigateToCrashLog: () -> Unit = {},
     onNavigateToRoutines: () -> Unit = {},
+    onNavigateToMcpServers: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val config by viewModel.llmConfig.collectAsState()
@@ -2524,6 +2525,25 @@ fun SettingsScreen(
             titleContentColor = TextPrimary,
             textContentColor = TextSecondary
         )
+    }
+
+    // External tool integrations are configured separately from model-provider credentials.
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("External Integrations", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+            Text("Connect compatible MCP servers and review their available tools.", color = TextSecondary, fontSize = 12.sp)
+            Button(
+                onClick = onNavigateToMcpServers,
+                colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
+            ) {
+                Icon(Icons.Default.Link, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("MCP Servers", color = DarkBackground)
+            }
+        }
     }
 
     if (localImportStatus != null) {
