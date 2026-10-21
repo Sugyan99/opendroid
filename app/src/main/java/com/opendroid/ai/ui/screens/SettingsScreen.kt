@@ -1730,7 +1730,7 @@ fun SettingsScreen(
                             color = AccentCyan
                         )
                         Text(
-                            text = "Receive discreet alerts for important notifications while OpenDroid is active. Normal notifications are stored without interrupting your conversation.",
+                            text = "Receive discreet alerts for important notifications while OpenDroid is active. Normal notifications are stored without interrupting your conversation. For wake-word listening, grant microphone permission and turn off the existing Show Floating Button setting.",
                             fontSize = 12.sp,
                             color = TextSecondary
                         )
