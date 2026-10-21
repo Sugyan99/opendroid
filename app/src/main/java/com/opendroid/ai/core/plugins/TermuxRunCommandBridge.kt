@@ -60,6 +60,9 @@ class TermuxRunCommandBridge @Inject constructor(
                 putExtra("com.termux.RUN_COMMAND_BACKGROUND", true)
                 putExtra("com.termux.RUN_COMMAND_SESSION_ACTION", "0")
             }
+            if (template.mutating && !userConfirmed) {
+                return@withContext TermuxBridgeResult.Failure("This command needs user confirmation.")
+            }
             try {
                 context.startService(intent)
             } catch (_: SecurityException) {
