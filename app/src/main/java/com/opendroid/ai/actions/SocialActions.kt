@@ -50,7 +50,7 @@ class SocialActions @Inject constructor(
                     appendLine("• Total Followers: ${summary.totalFollowers} (${if (summary.followersGrowthDelta >= 0) "+${summary.followersGrowthDelta}" else "${summary.followersGrowthDelta}"})")
                     appendLine("• Total Reach: ${summary.totalReach}")
                     appendLine("• Total Impressions: ${summary.totalImpressions}")
-                    appendLine("• Avg Engagement Rate: ${String.format(Locale.ROOT, "%.1f", summary.averageEngagementRate)}%")
+                    appendLine("• Avg Engagement Rate: ${String.format(Locale.ROOT, Locale.ROOT, "%.1f", summary.averageEngagementRate)}%")
                     appendLine("• Posts Published: ${summary.totalPosts}")
                 }
                 ActionResult(true, text)
@@ -173,7 +173,7 @@ class SocialActions @Inject constructor(
                         appendLine("🏆 **Top Performing Content**")
                         topPosts.forEachIndexed { index, post ->
                             appendLine("${index + 1}. [${post.platform.displayName}] \"${post.content.take(50)}...\"")
-                            appendLine("   Likes: ${post.likesCount} | Comments: ${post.commentsCount} | Engagement: ${String.format(Locale.ROOT, "%.1f", post.engagementRate)}%")
+                            appendLine("   Likes: ${post.likesCount} | Comments: ${post.commentsCount} | Engagement: ${String.format(Locale.ROOT, Locale.ROOT, "%.1f", post.engagementRate)}%")
                         }
                     }
                     ActionResult(true, text)
@@ -193,7 +193,7 @@ class SocialActions @Inject constructor(
                     appendLine("📋 **OpenDroid Social Report (${report.periodTitle})**")
                     appendLine("• Followers Growth: ${report.totalFollowersDelta}")
                     appendLine("• Total Reach: ${report.totalReach}")
-                    appendLine("• Avg Engagement: ${String.format(Locale.ROOT, "%.1f", report.averageEngagementRate)}%")
+                    appendLine("• Avg Engagement: ${String.format(Locale.ROOT, Locale.ROOT, "%.1f", report.averageEngagementRate)}%")
                     appendLine("• Top Platform: ${report.topPlatform.displayName}")
                     appendLine("\n**AI Summary:** ${report.aiSummary}")
                     appendLine("\n**Key Recommendations:**")
