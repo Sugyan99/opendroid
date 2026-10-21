@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
+import android.hardware.Sensor
 import android.content.Intent
 import android.provider.Settings
 import kotlinx.coroutines.launch
@@ -1829,6 +1830,51 @@ fun SettingsScreen(
                         ) {
                             Text("Save notification rules", color = AccentCyan)
                         }
+
+                        HorizontalDivider(color = BorderColor)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Hardware sensor monitoring", color = TextPrimary, fontSize = 14.sp)
+                                Text("Off by default; samples are limited to about 1 Hz", color = TextSecondary, fontSize = 11.sp)
+                            }
+                            Switch(
+                                checked = config.alwaysOnSensorsEnabled,
+                                onCheckedChange = viewModel::updateAlwaysOnSensorsEnabled
+                            )
+                        }
+                        val sensorOptions = listOf(
+                            "Accelerometer" to Sensor.TYPE_ACCELEROMETER,
+                            "Gyroscope" to Sensor.TYPE_GYROSCOPE,
+                            "Light sensor" to Sensor.TYPE_LIGHT,
+                            "Proximity sensor" to Sensor.TYPE_PROXIMITY
+                        )
+                        sensorOptions.forEach { (label, sensorType) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = sensorType in config.alwaysOnSensorTypes,
+                                    enabled = config.alwaysOnSensorsEnabled,
+                                    onCheckedChange = { checked ->
+                                        val nextTypes = config.alwaysOnSensorTypes.toMutableSet().apply {
+                                            if (checked) add(sensorType) else remove(sensorType)
+                                        }
+                                        viewModel.updateAlwaysOnSensorTypes(nextTypes)
+                                    }
+                                )
+                                Text(label, color = TextPrimary, fontSize = 13.sp)
+                            }
+                        }
+                        Text(
+                            "Only selected sensors are sampled. Missing sensors are skipped; no sensor data is uploaded by this adapter.",
+                            color = TextSecondary,
+                            fontSize = 11.sp
+                        )
                     }
                 }
             }
