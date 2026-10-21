@@ -182,6 +182,17 @@ object StorageWorkspaceProvider {
                     canonical.startsWith(Environment.getExternalStorageDirectory().path.trimEnd('/') + "/")
                 ) {
                     canonical.removePrefix(Environment.getExternalStorageDirectory().path).trimStart('/')
+                } else if (trimmed.removePrefix("/").startsWith("sdcard/")) {
+                    // Support legacy absolute paths when the platform does not resolve the
+                    // /sdcard alias to its canonical external-storage path.
+                    val legacyRelative = trimmed.removePrefix("/").removePrefix("sdcard/")
+                    val resolved = File(workspace, legacyRelative).canonicalPath
+                    if (resolved != workspaceCanonical &&
+                        !resolved.startsWith(workspaceCanonical + File.separator)
+                    ) {
+                        throw SecurityException("Path traversal attempt detected: $resolved")
+                    }
+                    legacyRelative
                 } else {
                     File(canonical).name
                 }
