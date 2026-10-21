@@ -5,7 +5,13 @@ package com.opendroid.ai.core.security
  * encrypted storage. Token IDs are stable logical identifiers and never contain the token.
  */
 interface McpCredentialStore {
-    fun read(serverId: String): CredentialStoreResult
-    fun write(serverId: String, token: String): CredentialStoreResult
-    fun remove(serverId: String): CredentialStoreResult
+    fun read(serverId: String): McpCredentialStoreResult
+    fun write(serverId: String, token: String): McpCredentialStoreResult
+    fun remove(serverId: String): McpCredentialStoreResult
+}
+
+sealed interface McpCredentialStoreResult {
+    data class Success(val token: String? = null) : McpCredentialStoreResult
+    data object CredentialsMustBeReentered : McpCredentialStoreResult
+    data object StorageUnavailable : McpCredentialStoreResult
 }
