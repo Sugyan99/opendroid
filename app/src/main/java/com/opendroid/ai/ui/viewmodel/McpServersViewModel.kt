@@ -6,6 +6,8 @@ import com.opendroid.ai.core.mcp.McpConnectionResult
 import com.opendroid.ai.core.mcp.McpHttpClient
 import com.opendroid.ai.core.mcp.McpSavedServer
 import com.opendroid.ai.core.mcp.McpServerRepository
+import com.opendroid.ai.core.security.McpCredentialStore
+import com.opendroid.ai.core.security.McpCredentialStoreResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class McpServersViewModel @Inject constructor(
     private val client: McpHttpClient,
-    private val repository: McpServerRepository
+    private val repository: McpServerRepository,
+    private val credentialStore: McpCredentialStore
 ) : ViewModel() {
     val servers: StateFlow<List<McpSavedServer>> = repository.servers
     private val _status = MutableStateFlow<String?>(null)
@@ -36,10 +39,21 @@ class McpServersViewModel @Inject constructor(
                 when (result) {
                     is McpConnectionResult.Connected -> {
                         val tools = result.tools.map { JSONObject(it.toString()) }
-                        withContext(Dispatchers.IO) {
+                        val saved = withContext(Dispatchers.IO) {
                             repository.save(name.trim(), endpoint.trim(), tools)
                         }
-                        _status.value = "Connection successful. Server metadata saved. The bearer token was not saved; reconnecting to authenticated servers will require entering it again."
+                        if (!bearerToken.isNullOrBlank()) {
+                            when (credentialStore.write(saved.id, bearerToken)) {
+                                is McpCredentialStoreResult.Success -> Unit
+                                McpCredentialStoreResult.CredentialsMustBeReentered,
+                                McpCredentialStoreResult.StorageUnavailable -> {
+                                    withContext(Dispatchers.IO) { repository.remove(saved.id) }
+                                    _status.value = "Server token could not be stored securely. No server profile was kept."
+                                    return@launch
+                                }
+                            }
+                        }
+                        _status.value = "Connection successful. Server metadata saved. Bearer credentials are stored using Android Keystore-backed encryption."
                     }
                     is McpConnectionResult.Failure -> _status.value = result.message
                     is McpConnectionResult.Success -> _status.value = "Connected, but the server response did not include a supported tool list."
@@ -59,7 +73,8 @@ class McpServersViewModel @Inject constructor(
             _checking.value = true
             _status.value = "Refreshing tools for ${server.name}…"
             try {
-                when (val result = client.listTools(server.endpoint)) {
+                val token = (credentialStore.read(server.id) as? McpCredentialStoreResult.Success)?.token
+                when (val result = client.listTools(server.endpoint, token)) {
                     is McpConnectionResult.Success -> {
                         val array = result.payload.optJSONObject("result")?.optJSONArray("tools")
                         if (array == null) {
@@ -67,7 +82,7 @@ class McpServersViewModel @Inject constructor(
                         } else {
                             val tools = (0 until array.length()).mapNotNull { array.optJSONObject(it) }
                             withContext(Dispatchers.IO) { repository.replaceTools(id, tools) }
-                            _status.value = "Tool list refreshed. If this server requires authentication, provide a token in the server settings; tokens are not persisted by this first increment."
+                            _status.value = "Tool list refreshed."
                         }
                     }
                     is McpConnectionResult.Failure -> _status.value = result.message
@@ -83,9 +98,12 @@ class McpServersViewModel @Inject constructor(
 
     fun remove(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            runCatching { repository.remove(id) }
-                .onSuccess { _status.value = "MCP server removed." }
-                .onFailure { _status.value = "Unable to remove MCP server metadata." }
+            runCatching {
+                repository.remove(id)
+                credentialStore.remove(id)
+            }
+                .onSuccess { _status.value = "MCP server and its stored credential removed." }
+                .onFailure { _status.value = "Unable to remove MCP server metadata or credentials." }
         }
     }
 }
