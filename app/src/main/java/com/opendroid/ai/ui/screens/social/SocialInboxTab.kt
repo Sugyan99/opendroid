@@ -34,6 +34,7 @@ fun SocialInboxTab(
     onRefresh: () -> Unit
 ) {
     val theme = AppTheme.colors
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var selectedCategory by remember { mutableStateOf<InteractionCategory?>(null) }
     var replyingInteraction by remember { mutableStateOf<SocialInteraction?>(null) }
 
@@ -196,7 +197,7 @@ private fun InteractionCard(
     onDismissClick: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(interaction.timestamp))
+    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(interaction.timestamp))
 
     Card(
         modifier = Modifier.fillMaxWidth()
