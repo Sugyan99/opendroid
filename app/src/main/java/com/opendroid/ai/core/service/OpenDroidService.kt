@@ -27,6 +27,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -128,7 +129,13 @@ class OpenDroidService : Service() {
                 showFloatingButton = config.showFloatingButton
                 // Preserve the legacy floating-button-off wake-word behavior, while also
                 // allowing an explicit wake-word toggle with the floating button still visible.
-                wakeWordEnabled = config.alwaysOnWakeWordEnabled || !showFloatingButton
+                val microphoneGranted =
+                    androidx.core.content.ContextCompat.checkSelfPermission(
+                        this@OpenDroidService,
+                        android.Manifest.permission.RECORD_AUDIO
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                wakeWordEnabled = (config.alwaysOnWakeWordEnabled || !showFloatingButton) &&
+                    microphoneGranted
                 if (wakeWordEnabled) {
                     startWakeWordDetection()
                 } else {
@@ -330,6 +337,20 @@ class OpenDroidService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Re-evaluate after the user returns from Android permission settings. A running
+        // service will not receive a DataStore change merely because a permission changed.
+        serviceScope.launch {
+            val config = settingsRepository.llmConfig.first()
+            showFloatingButton = config.showFloatingButton
+            val microphoneGranted =
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    this@OpenDroidService,
+                    android.Manifest.permission.RECORD_AUDIO
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            wakeWordEnabled = (config.alwaysOnWakeWordEnabled || !showFloatingButton) &&
+                microphoneGranted
+            if (wakeWordEnabled) startWakeWordDetection() else wakeWordDetector.stopListening()
+        }
         if (intent?.action == ACTION_TRIGGER_RECORD) {
             startListeningForQuery()
         }
