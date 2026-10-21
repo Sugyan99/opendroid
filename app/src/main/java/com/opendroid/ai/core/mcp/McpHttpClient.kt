@@ -91,7 +91,14 @@ class McpHttpClient @Inject constructor(
     }
 
     suspend fun listTools(endpoint: String, bearerToken: String? = null): McpConnectionResult =
-        request(endpoint, "tools/list", buildJsonObject {}, bearerToken)
+        when (val initialized = testConnection(endpoint, bearerToken)) {
+            is McpConnectionResult.Connected -> McpConnectionResult.Success(buildJsonObject {
+                put("jsonrpc", "2.0")
+                put("result", buildJsonObject { put("tools", JsonArray(initialized.tools)) })
+            })
+            is McpConnectionResult.Failure -> initialized
+            is McpConnectionResult.Success -> McpConnectionResult.Failure("Unexpected MCP response.")
+        }
 
     suspend fun callTool(
         endpoint: String,
