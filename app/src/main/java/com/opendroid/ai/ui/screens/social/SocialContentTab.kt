@@ -44,7 +44,6 @@ fun SocialContentTab(
     onRemoveHashtags: (String) -> String
 ) {
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
 
     var selectedPlatform by remember { mutableStateOf(SocialPlatform.X) }
     var topicInput by remember { mutableStateOf("") }
@@ -456,7 +455,7 @@ private fun PostItemCard(
     onDelete: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("MMM d, HH:mm", currentLocale)
+    val timeFormat = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault())
     val dateString = when {
         post.publishedTime != null -> "Published " + timeFormat.format(Date(post.publishedTime))
         post.scheduledPublishTime != null -> "Scheduled for " + timeFormat.format(Date(post.scheduledPublishTime))
