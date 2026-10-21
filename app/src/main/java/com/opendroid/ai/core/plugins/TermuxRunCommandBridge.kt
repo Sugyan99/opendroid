@@ -3,15 +3,13 @@ package com.opendroid.ai.core.plugins
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import com.opendroid.ai.core.security.McpCredentialStoreResult
-import com.opendroid.ai.core.plugins.TermuxCommandTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed interface TermuxBridgeResult {
-    data class Success(val stdout: String?, val exitCode: Int?) : TermuxBridgeResult
+    data class Dispatched(val commandLabel: String) : TermuxBridgeResult
     data class Failure(val message: String) : TermuxBridgeResult
 }
 
@@ -30,7 +28,7 @@ class TermuxRunCommandBridge @Inject constructor(
         template: TermuxCommandTemplate,
         arguments: Map<String, String>,
         userConfirmed: Boolean,
-        workDirectory: String = "${'$'}HOME"
+        workDirectory: String = "~/ " .trim()
     ): TermuxBridgeResult = withContext(Dispatchers.IO) {
         try {
             val argv = template.buildArgv(arguments, userConfirmed)
@@ -71,7 +69,7 @@ class TermuxRunCommandBridge @Inject constructor(
             } catch (_: Exception) {
                 return@withContext TermuxBridgeResult.Failure("Unable to dispatch command to Termux.")
             }
-            TermuxBridgeResult.Success(stdout = null, exitCode = null)
+            TermuxBridgeResult.Dispatched(template.displayName)
         } catch (e: Exception) {
             TermuxBridgeResult.Failure(e.message?.take(200) ?: "Termux command rejected.")
         }
