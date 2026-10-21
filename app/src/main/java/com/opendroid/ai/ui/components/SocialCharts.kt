@@ -103,7 +103,7 @@ fun SimpleLineChart(
 fun SimpleBarChart(
     values: List<Float>,
     labels: List<String>,
-    modifier: Modifier = Modifier.fillMaxWidth().height(160.dp),
+    modifier: Modifier = Modifier,
     barColor: Color = AppTheme.colors.textPrimary
 ) {
     val chartModifier = modifier.fillMaxWidth().height(160.dp)
