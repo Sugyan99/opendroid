@@ -735,6 +735,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateAlwaysOnWakeWordEnabled(enabled: Boolean) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnWakeWordEnabled = enabled)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnWakeWordEnabled = enabled)
+            }
+        }
+    }
+
     fun updateAlwaysOnSensorsEnabled(enabled: Boolean) {
         _llmConfig.value = _llmConfig.value.copy(alwaysOnSensorsEnabled = enabled)
         viewModelScope.launch {
