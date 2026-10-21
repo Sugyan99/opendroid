@@ -74,19 +74,14 @@ class McpServersViewModel @Inject constructor(
             _status.value = "Refreshing tools for ${server.name}…"
             try {
                 val token = (credentialStore.read(server.id) as? McpCredentialStoreResult.Success)?.token
-                when (val result = client.listTools(server.endpoint, token)) {
-                    is McpConnectionResult.Success -> {
-                        val array = result.payload.optJSONObject("result")?.optJSONArray("tools")
-                        if (array == null) {
-                            _status.value = "The server did not return a tools array."
-                        } else {
-                            val tools = (0 until array.length()).mapNotNull { array.optJSONObject(it) }
-                            withContext(Dispatchers.IO) { repository.replaceTools(id, tools) }
-                            _status.value = "Tool list refreshed."
-                        }
+                when (val result = client.testConnection(server.endpoint, token)) {
+                    is McpConnectionResult.Connected -> {
+                        val tools = result.tools.map { JSONObject(it.toString()) }
+                        withContext(Dispatchers.IO) { repository.replaceTools(id, tools) }
+                        _status.value = "Connection verified and tool list refreshed."
                     }
                     is McpConnectionResult.Failure -> _status.value = result.message
-                    is McpConnectionResult.Connected -> _status.value = "Unexpected connection response."
+                    is McpConnectionResult.Success -> _status.value = "Connected, but the server did not return a usable tool list."
                 }
             } catch (e: Exception) {
                 _status.value = e.message?.take(240) ?: "Unable to refresh tools."
