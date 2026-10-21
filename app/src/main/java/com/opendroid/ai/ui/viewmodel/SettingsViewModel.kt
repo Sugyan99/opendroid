@@ -699,6 +699,42 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateAlwaysOnNotifications(enabled: Boolean) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnNotificationsEnabled = enabled)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnNotificationsEnabled = enabled)
+            }
+        }
+    }
+
+    fun updateAlwaysOnHighPriorityInterrupts(enabled: Boolean) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnHighPriorityInterrupts = enabled)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnHighPriorityInterrupts = enabled)
+            }
+        }
+    }
+
+    fun updateAlwaysOnImportantPackages(packages: Set<String>) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnImportantPackages = packages)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnImportantPackages = packages)
+            }
+        }
+    }
+
+    fun updateAlwaysOnMutedPackages(packages: Set<String>) {
+        _llmConfig.value = _llmConfig.value.copy(alwaysOnMutedPackages = packages)
+        viewModelScope.launch {
+            settingsRepository.updateConfig { current ->
+                current.copy(alwaysOnMutedPackages = packages)
+            }
+        }
+    }
+
     fun updateShowFloatingButton(enabled: Boolean) {
         _llmConfig.value = _llmConfig.value.copy(showFloatingButton = enabled)
         viewModelScope.launch {
