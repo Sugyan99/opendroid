@@ -57,6 +57,7 @@ class OpenDroidService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var showFloatingButton = false
+    private var wakeWordEnabled = false
     @Volatile private var pendingApprovalListen = false
     private val pendingNotificationAlerts = java.util.ArrayDeque<Pair<String, String>>()
 
@@ -125,10 +126,13 @@ class OpenDroidService : Service() {
         serviceScope.launch {
             settingsRepository.llmConfig.collectLatest { config ->
                 showFloatingButton = config.showFloatingButton
-                if (showFloatingButton) {
-                    wakeWordDetector.stopListening()
-                } else {
+                // Preserve the legacy floating-button-off wake-word behavior, while also
+                // allowing an explicit wake-word toggle with the floating button still visible.
+                wakeWordEnabled = config.alwaysOnWakeWordEnabled || !showFloatingButton
+                if (wakeWordEnabled) {
                     startWakeWordDetection()
+                } else {
+                    wakeWordDetector.stopListening()
                 }
 
                 // Sensor sampling is independently opt-in and uses a bounded 1 Hz event source.
@@ -156,7 +160,7 @@ class OpenDroidService : Service() {
             agentLoop.agentState.collectLatest { state ->
                 if (state is AgentState.PlanProposed && state.plan.planId != promptedPlanId) {
                     promptedPlanId = state.plan.planId
-                    if (!showFloatingButton) {
+                    if (wakeWordEnabled) {
                         pendingApprovalListen = true
                     }
                     textToSpeechEngine.speak(
@@ -279,8 +283,8 @@ class OpenDroidService : Service() {
                     )
                 )
                 agentLoop.processQuery(query, this)
-                // Resume wake word detection only if floating button is disabled
-                if (!showFloatingButton) {
+                // Resume listening only if wake-word mode remains enabled.
+                if (wakeWordEnabled) {
                     wakeWordDetector.startListening {
                         textToSpeechEngine.speak("OpenDroid online.")
                         startListeningForQuery()
@@ -291,8 +295,8 @@ class OpenDroidService : Service() {
             },
             onError = { _ ->
                 agentLoop.setAgentState(AgentState.Idle)
-                // Resume wake word detection only if floating button is disabled
-                if (!showFloatingButton) {
+                // Resume listening only if wake-word mode remains enabled.
+                if (wakeWordEnabled) {
                     wakeWordDetector.startListening {
                         textToSpeechEngine.speak("OpenDroid online.")
                         startListeningForQuery()
@@ -317,10 +321,10 @@ class OpenDroidService : Service() {
                     VoiceApprovalIntent.REJECT -> agentLoop.rejectProposedPlan()
                     VoiceApprovalIntent.NONE -> Unit
                 }
-                if (!showFloatingButton) startWakeWordDetection()
+                if (wakeWordEnabled) startWakeWordDetection()
             },
             onError = { _ ->
-                if (!showFloatingButton) startWakeWordDetection()
+                if (wakeWordEnabled) startWakeWordDetection()
             }
         )
     }
