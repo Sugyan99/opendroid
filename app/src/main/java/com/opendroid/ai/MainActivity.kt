@@ -29,11 +29,6 @@ class MainActivity : ComponentActivity() {
         enableOpenDroidEdgeToEdge(isDarkTheme = true)
         super.onCreate(savedInstanceState)
 
-        // Start foreground assistant service only if RECORD_AUDIO permission is granted
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            OpenDroidService.start(this)
-        }
-
         setContent {
             val config by settingsRepository.llmConfig.collectAsState(
                 initial = com.opendroid.ai.data.models.LLMConfig()
@@ -47,6 +42,19 @@ class MainActivity : ComponentActivity() {
                     OpenDroidNavigation()
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The user may have granted microphone access on the app's Permissions screen.
+        // Retry from foreground activity context, which is allowed to start the FGS.
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            runCatching { OpenDroidService.start(this) }
         }
     }
 
