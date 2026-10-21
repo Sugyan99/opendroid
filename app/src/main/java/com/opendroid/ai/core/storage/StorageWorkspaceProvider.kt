@@ -177,9 +177,13 @@ object StorageWorkspaceProvider {
                 val extRoot = Environment.getExternalStorageDirectory().canonicalPath
                 val relative = if (canonical.startsWith(extRoot)) {
                     canonical.removePrefix(extRoot).trimStart('/')
-                } else if (canonical.startsWith("/sdcard")) {
+                } else if (
+                    canonical == "/sdcard" || canonical.startsWith("/sdcard/")
+                ) {
                     canonical.removePrefix("/sdcard").trimStart('/')
-                } else if (canonical.startsWith("/storage/emulated/0")) {
+                } else if (canonical == "/storage/emulated/0" ||
+                    canonical.startsWith("/storage/emulated/0/")
+                ) {
                     canonical.removePrefix("/storage/emulated/0").trimStart('/')
                 } else {
                     File(canonical).name
@@ -513,7 +517,12 @@ object StorageWorkspaceProvider {
 
     private fun cleanRelativePath(pathStr: String?): String {
         var clean = pathStr?.trim().orEmpty()
-        val prefixes = listOf("/sdcard/", "/storage/emulated/0/", "sdcard/", "./")
+        val prefixes = listOf(
+            Environment.getExternalStorageDirectory().path.trimEnd('/') + "/",
+            "/storage/emulated/0/",
+            "sdcard/",
+            "./"
+        )
         for (prefix in prefixes) {
             if (clean.startsWith(prefix)) {
                 clean = clean.removePrefix(prefix)
