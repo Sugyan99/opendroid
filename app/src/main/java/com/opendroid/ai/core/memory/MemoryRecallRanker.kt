@@ -39,7 +39,7 @@ object MemoryRecallRanker {
 
     private fun tokens(text: String): Set<String> =
         text.lowercase(Locale.ROOT)
-            .split(Regex("[^\\p{L}\\p{N}_]+"))
+            .split(Regex("[^\\p{L}\\p{N}]+"))
             .filter { it.length >= 2 }
             .take(256)
             .toSet()
