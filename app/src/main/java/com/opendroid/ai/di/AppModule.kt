@@ -66,6 +66,11 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideMcpCredentialStore(@ApplicationContext context: Context): com.opendroid.ai.core.security.McpCredentialStore =
+        com.opendroid.ai.core.security.AndroidMcpCredentialStore(context)
+
+    @Provides
+    @Singleton
     fun provideCallFlowVerifier(): CallFlowVerifier = AndroidCallFlowVerifier()
 
     @Provides
