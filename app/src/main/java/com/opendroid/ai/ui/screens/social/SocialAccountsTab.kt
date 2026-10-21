@@ -156,6 +156,7 @@ private fun AccountCard(
     onRevoke: () -> Unit
 ) {
     val theme = AppTheme.colors
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     val isConnected = account?.status == AccountStatus.CONNECTED
 
     Card(
@@ -260,7 +261,7 @@ private fun AccountCard(
                 ) {
                     val lastSync = account.lastSyncAt
                     val syncText = if (lastSync != null && lastSync > 0) {
-                        "Synced " + SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(lastSync))
+                        "Synced " + SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(lastSync))
                     } else {
                         "Not synced yet"
                     }

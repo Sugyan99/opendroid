@@ -231,6 +231,7 @@ private fun RuleCard(
     onDelete: () -> Unit
 ) {
     val theme = AppTheme.colors
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -288,7 +289,7 @@ private fun RuleCard(
 @Composable
 private fun AuditLogItem(log: SocialAuditEntry) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("MMM d, HH:mm:ss", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("MMM d, HH:mm:ss", currentLocale)
 
     Card(
         modifier = Modifier.fillMaxWidth()

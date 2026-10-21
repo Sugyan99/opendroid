@@ -196,7 +196,8 @@ private fun InteractionCard(
     onDismissClick: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(interaction.timestamp))
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
+    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(interaction.timestamp))
 
     Card(
         modifier = Modifier.fillMaxWidth()

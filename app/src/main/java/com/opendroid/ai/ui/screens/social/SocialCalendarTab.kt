@@ -34,11 +34,12 @@ fun SocialCalendarTab(
     onNavigateToComposer: () -> Unit
 ) {
     val theme = AppTheme.colors
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var selectedDayIndex by remember { mutableIntStateOf(0) }
     var reschedulingPostId by remember { mutableStateOf<String?>(null) }
 
     // Generate next 14 days
-    val calendarDays = remember {
+    val calendarDays = remember(currentLocale) {
         val list = mutableListOf<CalendarDay>()
         val cal = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, 0)
@@ -46,8 +47,8 @@ fun SocialCalendarTab(
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
 
-        val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
-        val numFormat = SimpleDateFormat("d", Locale.getDefault())
+        val dayFormat = SimpleDateFormat("EEE", currentLocale)
+        val numFormat = SimpleDateFormat("d", currentLocale)
 
         for (i in 0 until 14) {
             val date = cal.time
@@ -293,7 +294,8 @@ private fun ScheduledPostCard(
     onCancel: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
+    val timeFormat = SimpleDateFormat("HH:mm", currentLocale)
     val timeString = post.scheduledPublishTime?.let { timeFormat.format(Date(it)) } ?: "--:--"
 
     Card(

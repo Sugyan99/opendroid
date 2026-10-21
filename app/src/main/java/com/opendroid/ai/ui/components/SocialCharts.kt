@@ -19,8 +19,8 @@ import com.opendroid.ai.ui.theme.AppTheme
 @Composable
 fun SimpleLineChart(
     dataPoints: List<Float>,
-    labels: List<String> = emptyList(),
     modifier: Modifier = Modifier,
+    labels: List<String> = emptyList(),
     lineColor: Color = AppTheme.colors.accentCyan,
     gridColor: Color = AppTheme.colors.borderColor
 ) {

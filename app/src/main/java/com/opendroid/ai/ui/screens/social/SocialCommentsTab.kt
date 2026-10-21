@@ -166,7 +166,8 @@ private fun CommentReviewCard(
     onGenerateReply: ((SuggestedReply) -> Unit) -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(comment.timestamp))
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
+    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(comment.timestamp))
 
     var replyText by remember(comment.id) {
         mutableStateOf(comment.suggestedReply ?: "")
