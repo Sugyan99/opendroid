@@ -12,6 +12,7 @@ import com.opendroid.ai.core.agent.AgentLoop
 import com.opendroid.ai.core.agent.AgentState
 import com.opendroid.ai.core.runtime.AssistantEvent
 import com.opendroid.ai.core.runtime.AssistantEventRouter
+import com.opendroid.ai.core.runtime.AssistantEventProcessor
 import com.opendroid.ai.core.runtime.SensorEventMonitor
 import com.opendroid.ai.core.voice.SpeechRecognitionEngine
 import com.opendroid.ai.core.voice.TextToSpeechEngine
@@ -42,6 +43,9 @@ class OpenDroidService : Service() {
 
     @Inject
     lateinit var assistantEventRouter: AssistantEventRouter
+
+    @Inject
+    lateinit var assistantEventProcessor: AssistantEventProcessor
 
     @Inject
     lateinit var sensorEventMonitor: SensorEventMonitor
@@ -107,6 +111,14 @@ class OpenDroidService : Service() {
         createNotificationChannel()
         startForegroundCompat()
         mcpServer.start()
+
+        // Collect typed live events and update the privacy-redacted in-memory snapshot.
+        // Collection is intentionally in-process; it never stores raw audio or message bodies.
+        serviceScope.launch {
+            assistantEventRouter.events.collect { event ->
+                assistantEventProcessor.process(event)
+            }
+        }
 
         // Monitor floating button config to start/stop wake word detection dynamically
         serviceScope.launch {
