@@ -44,6 +44,8 @@ class OpenDroidService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var showFloatingButton = false
     @Volatile private var pendingApprovalListen = false
+    private val pendingNotificationAlerts = java.util.ArrayDeque<Pair<String, String>>()
+
 
     companion object {
         @Volatile private var activeInstance: OpenDroidService? = null
@@ -109,6 +111,13 @@ class OpenDroidService : Service() {
             }
         }
 
+        // Deliver queued important alerts when the active voice turn reaches idle.
+        serviceScope.launch {
+            agentLoop.agentState.collectLatest { state ->
+                if (state is AgentState.Idle) announceNextQueuedNotification()
+            }
+        }
+
         // Hands-free plan approval (upstream issue 18 spec, voice section):
         // speak the prompt once per proposed plan; auto-listen for the reply
         // only in wake-word mode, where the user is known to be voice-driven.
@@ -169,8 +178,31 @@ class OpenDroidService : Service() {
      * Called by the notification listener only after the interruption policy accepts it.
      */
     fun announceImportantNotification(packageName: String, title: String) {
-        if (showFloatingButton || !::textToSpeechEngine.isInitialized) return
-        if (agentLoop.agentState.value is AgentState.Listening) return
+        if (!::textToSpeechEngine.isInitialized) return
+        val state = agentLoop.agentState.value
+        if (state is AgentState.Listening ||
+            state is AgentState.Thinking ||
+            state is AgentState.ExecutingPlan ||
+            state is AgentState.PlanProposed
+        ) {
+            synchronized(pendingNotificationAlerts) {
+                if (pendingNotificationAlerts.size >= 5) pendingNotificationAlerts.removeFirst()
+                pendingNotificationAlerts.addLast(packageName to title)
+            }
+            return
+        }
+        speakImportantNotification(packageName, title)
+    }
+
+    private fun announceNextQueuedNotification() {
+        if (!::textToSpeechEngine.isInitialized) return
+        val next = synchronized(pendingNotificationAlerts) {
+            if (pendingNotificationAlerts.isEmpty()) null else pendingNotificationAlerts.removeFirst()
+        } ?: return
+        speakImportantNotification(next.first, next.second)
+    }
+
+    private fun speakImportantNotification(packageName: String, title: String) {
         val appLabel = runCatching {
             packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(packageName, 0)
