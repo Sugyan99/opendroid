@@ -19,6 +19,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.net.URI
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +36,7 @@ class McpHttpClient @Inject constructor(
 ) {
     private val json = Json { ignoreUnknownKeys = true; isLenient = false }
     private val requestIds = AtomicLong(1)
+    private val sessionIds = ConcurrentHashMap<String, String>()
 
     suspend fun testConnection(endpoint: String, bearerToken: String? = null): McpConnectionResult {
         return try {
@@ -115,13 +117,15 @@ class McpHttpClient @Inject constructor(
 
         val requestBuilder = Request.Builder()
             .url(endpoint)
-            .header("Accept", "application/json")
+            .header("Accept", "application/json, text/event-stream")
             .header("MCP-Protocol-Version", SUPPORTED_PROTOCOL_VERSION)
+            .apply { sessionIds[endpoint]?.let { header("MCP-Session-Id", it) } }
             .post(body)
         if (!bearerToken.isNullOrBlank()) requestBuilder.header("Authorization", "Bearer $bearerToken")
 
         try {
             http.newCall(requestBuilder.build()).execute().use { response ->
+                response.header("MCP-Session-Id")?.let { sessionIds[endpoint] = it }
                 if (!response.isSuccessful) {
                     return@withContext McpConnectionResult.Failure("MCP HTTP error: ${response.code}.")
                 }
@@ -178,6 +182,7 @@ class McpHttpClient @Inject constructor(
             .url(endpoint)
             .header("Accept", "application/json")
             .header("MCP-Protocol-Version", SUPPORTED_PROTOCOL_VERSION)
+            .apply { sessionIds[endpoint]?.let { header("MCP-Session-Id", it) } }
             .apply {
                 if (!bearerToken.isNullOrBlank()) header("Authorization", "Bearer $bearerToken")
             }
@@ -185,6 +190,7 @@ class McpHttpClient @Inject constructor(
             .build()
         try {
             http.newCall(request).execute().use { response ->
+                response.header("MCP-Session-Id")?.let { sessionIds[endpoint] = it }
                 // Streamable HTTP notifications may legitimately return 202 without a body.
                 if (response.code == 202 || response.code == 204 || response.isSuccessful) null
                 else "MCP initialized notification failed with HTTP ${response.code}."
