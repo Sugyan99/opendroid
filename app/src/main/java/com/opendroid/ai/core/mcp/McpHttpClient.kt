@@ -18,8 +18,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.net.URI
-import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,6 +55,15 @@ class McpHttpClient @Inject constructor(
                 bearerToken = bearerToken
             )
             if (initialized is McpConnectionResult.Failure) return initialized
+            val initializePayload = (initialized as? McpConnectionResult.Success)?.payload?.get("result") as? JsonObject
+                ?: return McpConnectionResult.Failure("MCP server returned no initialization result.")
+            val negotiatedVersion = (initializePayload["protocolVersion"] as? JsonPrimitive)?.contentOrNull
+            if (negotiatedVersion != SUPPORTED_PROTOCOL_VERSION) {
+                sessionIds.remove(endpoint)
+                return McpConnectionResult.Failure(
+                    "MCP protocol version is not supported by this client. Expected $SUPPORTED_PROTOCOL_VERSION."
+                )
+            }
             val notification = postNotification(
                 endpoint,
                 "notifications/initialized",
@@ -69,8 +78,7 @@ class McpHttpClient @Inject constructor(
                     val entries = result["tools"] as? JsonArray
                         ?: return McpConnectionResult.Failure("MCP server did not return a tools array.")
                     McpConnectionResult.Connected(
-                        serverInfo = (initialized as? McpConnectionResult.Success)
-                            ?.payload?.get("result")?.let { it as? JsonObject }?.get("serverInfo"),
+                        serverInfo = initializePayload["serverInfo"],
                         tools = entries.mapNotNull { it as? JsonObject }
                     )
                 }
