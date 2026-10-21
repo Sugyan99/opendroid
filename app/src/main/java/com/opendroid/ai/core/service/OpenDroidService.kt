@@ -12,6 +12,7 @@ import com.opendroid.ai.core.agent.AgentLoop
 import com.opendroid.ai.core.agent.AgentState
 import com.opendroid.ai.core.runtime.AssistantEvent
 import com.opendroid.ai.core.runtime.AssistantEventRouter
+import com.opendroid.ai.core.runtime.SensorEventMonitor
 import com.opendroid.ai.core.voice.SpeechRecognitionEngine
 import com.opendroid.ai.core.voice.TextToSpeechEngine
 import com.opendroid.ai.core.voice.VoiceApprovalIntent
@@ -41,6 +42,9 @@ class OpenDroidService : Service() {
 
     @Inject
     lateinit var assistantEventRouter: AssistantEventRouter
+
+    @Inject
+    lateinit var sensorEventMonitor: SensorEventMonitor
 
     private lateinit var wakeWordDetector: WakeWordDetector
     private lateinit var speechRecognitionEngine: SpeechRecognitionEngine
@@ -113,6 +117,14 @@ class OpenDroidService : Service() {
                 } else {
                     startWakeWordDetection()
                 }
+
+                // Sensor sampling is independently opt-in and uses a bounded 1 Hz event source.
+                val allowedSensors = if (config.alwaysOnSensorsEnabled) {
+                    config.alwaysOnSensorTypes
+                } else {
+                    emptySet()
+                }
+                sensorEventMonitor.start(allowedSensors)
             }
         }
 
@@ -317,6 +329,7 @@ class OpenDroidService : Service() {
         serviceScope.cancel()
         mcpServer.stop()
         wakeWordDetector.destroy()
+        sensorEventMonitor.stop()
         speechRecognitionEngine.destroy()
         textToSpeechEngine.destroy()
     }
