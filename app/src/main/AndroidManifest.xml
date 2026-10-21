@@ -55,6 +55,10 @@
         before touching the hardware.
     -->
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <!-- Termux must be visible for RUN_COMMAND integration on Android 11+. -->
+    <queries>
+        <package android:name="com.termux" />
+    </queries>
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Alarm Permissions -->
