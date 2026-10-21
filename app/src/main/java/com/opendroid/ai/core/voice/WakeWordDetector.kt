@@ -2,6 +2,7 @@ package com.opendroid.ai.core.voice
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -31,6 +32,9 @@ class WakeWordDetector(private val context: Context) {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            // Hint older recognition services to stay offline. API 31+ uses the
+            // dedicated on-device recognizer whenever the device exposes one.
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
         }
     }
 
@@ -49,7 +53,14 @@ class WakeWordDetector(private val context: Context) {
 
         if (SpeechRecognizer.isRecognitionAvailable(context)) {
             try {
-                speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
+                speechRecognizer = if (
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
+                ) {
+                    SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+                } else {
+                    SpeechRecognizer.createSpeechRecognizer(context)
+                }
             } catch (e: Exception) {
                 scheduleRestart()
                 return
