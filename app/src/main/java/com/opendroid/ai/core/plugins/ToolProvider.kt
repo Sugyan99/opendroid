@@ -81,3 +81,32 @@ object ToolArgumentValidator {
         return null
     }
 }
+
+/** Converts MCP-provided tool metadata into normalized local descriptors. */
+object McpToolDescriptorFactory {
+    fun fromServer(
+        serverId: String,
+        providerId: String,
+        tool: kotlinx.serialization.json.JsonObject
+    ): ToolDescriptor? {
+        val name = (tool["name"] as? kotlinx.serialization.json.JsonPrimitive)?.content
+            ?.takeIf { it.isNotBlank() && it.length <= 256 } ?: return null
+        val description = (tool["description"] as? kotlinx.serialization.json.JsonPrimitive)?.content.orEmpty()
+        val schema = tool["inputSchema"] as? kotlinx.serialization.json.JsonObject
+            ?: kotlinx.serialization.json.buildJsonObject { put("type", "object") }
+        // MCP servers control their descriptions. Treat these as untrusted display text and
+        // default all external tools to confirmation-required until a local policy classifies them.
+        val normalized = name.lowercase()
+        val risky = listOf("delete", "remove", "write", "send", "purchase", "pay", "shell", "exec", "run", "update")
+            .any { normalized.contains(it) }
+        return ToolDescriptor(
+            id = "$serverId:$name",
+            name = name,
+            description = description.take(1000),
+            inputSchema = schema,
+            risk = if (risky) ToolRisk.DESTRUCTIVE else ToolRisk.SENSITIVE,
+            requiresConfirmation = true,
+            providerId = providerId
+        )
+    }
+}
