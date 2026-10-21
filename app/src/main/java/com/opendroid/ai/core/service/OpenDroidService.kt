@@ -68,8 +68,8 @@ class OpenDroidService : Service() {
     }
 
     override fun onCreate() {
-        activeInstance = this
         super.onCreate()
+        activeInstance = this
         
         // Initialize engines
         wakeWordDetector = WakeWordDetector(this)
