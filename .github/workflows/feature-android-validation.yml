@@ -38,10 +38,10 @@ jobs:
           java-version: '21'
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools, platforms;android-36, build-tools;36.0.0'
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
       - name: Install required Android SDK packages
-        run: yes | sdkmanager --licenses && sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run unit tests
@@ -71,8 +71,6 @@ jobs:
           java-version: '21'
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools, platforms;android-36, build-tools;36.0.0'
       - name: Install required Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
       - name: Set up Gradle
