@@ -65,14 +65,16 @@ class SensorEventMonitor @Inject constructor(
      * An empty set is the explicit stop operation.
      */
     fun start(sensorTypes: Set<Int>): Set<Int> {
+        val available = sensorTypes.filter { type ->
+            sensorManager.getDefaultSensor(type) != null
+        }.toSet()
+
         synchronized(lock) {
+            if (available == enabledTypes) return enabledTypes.toSet()
+
             sensorManager.unregisterListener(this)
             enabledTypes = emptySet()
             lastSampleElapsedMs.clear()
-
-            val available = sensorTypes.distinct().filter { type ->
-                sensorManager.getDefaultSensor(type) != null
-            }.toSet()
 
             val registered = linkedSetOf<Int>()
             for (type in available) {
