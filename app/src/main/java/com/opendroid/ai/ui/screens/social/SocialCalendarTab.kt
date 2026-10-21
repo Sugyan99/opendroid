@@ -39,7 +39,7 @@ fun SocialCalendarTab(
     var reschedulingPostId by remember { mutableStateOf<String?>(null) }
 
     // Generate next 14 days
-    val calendarDays = remember {
+    val calendarDays = remember(currentLocale) {
         val list = mutableListOf<CalendarDay>()
         val cal = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, 0)
