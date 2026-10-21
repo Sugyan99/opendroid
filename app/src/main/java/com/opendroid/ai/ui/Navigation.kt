@@ -56,6 +56,7 @@ object OpenDroidRoutes {
     const val CRASH_LOG = "crash_log"
     const val ROUTINES = "routines"
     const val SOCIAL = "social"
+    const val MCP_SERVERS = "mcp_servers"
 }
 
 /**
@@ -274,6 +275,10 @@ fun OpenDroidNavigation(
         composable(OpenDroidRoutes.SOCIAL) {
             val socialViewModel: SocialViewModel = hiltViewModel()
             SocialScreen(viewModel = socialViewModel)
+        }
+
+        composable(OpenDroidRoutes.MCP_SERVERS) {
+            McpServersScreen(onBack = { navController.popBackStack() })
         }
     }
 }
