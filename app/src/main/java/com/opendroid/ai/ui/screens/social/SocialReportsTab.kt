@@ -37,8 +37,7 @@ fun SocialReportsTab(
 ) {
     val context = LocalContext.current
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
-    val timeFormat = SimpleDateFormat("MMM d, yyyy", currentLocale)
+    val timeFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
 
     val dateRange = if (weeklyReport != null) {
         "${timeFormat.format(Date(weeklyReport.startDate))} – ${timeFormat.format(Date(weeklyReport.endDate))}"
