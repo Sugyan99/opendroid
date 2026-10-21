@@ -6,6 +6,7 @@ import com.opendroid.ai.social.domain.model.SocialInsight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
