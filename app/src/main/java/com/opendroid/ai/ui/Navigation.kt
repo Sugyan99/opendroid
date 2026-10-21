@@ -171,6 +171,9 @@ fun OpenDroidNavigation(
                 },
                 onNavigateToRoutines = {
                     navController.navigate(OpenDroidRoutes.ROUTINES)
+                },
+                onNavigateToMcpServers = {
+                    navController.navigate(OpenDroidRoutes.MCP_SERVERS)
                 }
             )
         }
@@ -424,7 +427,8 @@ fun MainDashboard(
                     Screen.Social -> SocialScreen(viewModel = socialViewModel)
                     Screen.Macros -> MacrosScreen(
                         viewModel = macroViewModel,
-                        onNavigateToRoutines = onNavigateToRoutines
+                        onNavigateToRoutines = onNavigateToRoutines,
+                        onNavigateToMcpServers = { navController.navigate(OpenDroidRoutes.MCP_SERVERS) }
                     )
                     Screen.History -> LogsScreen(viewModel = historyViewModel)
                     Screen.Settings -> SettingsScreen(
