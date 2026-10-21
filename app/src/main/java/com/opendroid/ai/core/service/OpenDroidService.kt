@@ -46,6 +46,10 @@ class OpenDroidService : Service() {
     @Volatile private var pendingApprovalListen = false
 
     companion object {
+        @Volatile private var runningInstance: OpenDroidService? = null
+
+        fun getRunningInstance(): OpenDroidService? = runningInstance
+
         const val ACTION_TRIGGER_RECORD = "com.opendroid.ai.action.TRIGGER_RECORD"
         private const val CHANNEL_ID = "opendroid_channel"
         private const val NOTIFICATION_ID = 2024
