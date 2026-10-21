@@ -20,12 +20,13 @@ import com.opendroid.ai.ui.theme.AppTheme
 fun SimpleLineChart(
     dataPoints: List<Float>,
     labels: List<String> = emptyList(),
-    modifier: Modifier = Modifier.fillMaxWidth().height(160.dp),
+    modifier: Modifier = Modifier,
     lineColor: Color = AppTheme.colors.accentCyan,
     gridColor: Color = AppTheme.colors.borderColor
 ) {
+    val chartModifier = modifier.fillMaxWidth().height(160.dp)
     if (dataPoints.isEmpty()) {
-        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Box(modifier = chartModifier, contentAlignment = Alignment.Center) {
             Text("No data points available", color = AppTheme.colors.textSecondary, fontSize = 12.sp)
         }
         return
@@ -35,7 +36,7 @@ fun SimpleLineChart(
     val minVal = (dataPoints.minOrNull() ?: 0f).coerceAtLeast(0f)
     val range = (maxVal - minVal).coerceAtLeast(1f)
 
-    Column(modifier = modifier) {
+    Column(modifier = chartModifier) {
         Canvas(modifier = Modifier.fillMaxWidth().weight(1f)) {
             val width = size.width
             val height = size.height
@@ -105,10 +106,11 @@ fun SimpleBarChart(
     modifier: Modifier = Modifier.fillMaxWidth().height(160.dp),
     barColor: Color = AppTheme.colors.textPrimary
 ) {
+    val chartModifier = modifier.fillMaxWidth().height(160.dp)
     if (values.isEmpty()) return
     val maxVal = (values.maxOrNull() ?: 1f).coerceAtLeast(1f)
 
-    Column(modifier = modifier) {
+    Column(modifier = chartModifier) {
         Canvas(modifier = Modifier.fillMaxWidth().weight(1f)) {
             val width = size.width
             val height = size.height
@@ -146,11 +148,12 @@ fun SimpleBarChart(
 fun DonutChart(
     proportions: List<Float>,
     colors: List<Color>,
-    modifier: Modifier = Modifier.size(100.dp)
+    modifier: Modifier
 ) {
     val total = proportions.sum().coerceAtLeast(1f)
+    val chartModifier = modifier.size(100.dp)
 
-    Canvas(modifier = modifier) {
+    Canvas(modifier = chartModifier) {
         var startAngle = -90f
         val strokeWidth = 14.dp.toPx()
         val diameter = size.minDimension - strokeWidth
