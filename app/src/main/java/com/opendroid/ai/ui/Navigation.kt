@@ -56,6 +56,7 @@ object OpenDroidRoutes {
     const val CRASH_LOG = "crash_log"
     const val ROUTINES = "routines"
     const val SOCIAL = "social"
+    const val MCP_SERVERS = "mcp_servers"
 }
 
 /**
@@ -170,6 +171,9 @@ fun OpenDroidNavigation(
                 },
                 onNavigateToRoutines = {
                     navController.navigate(OpenDroidRoutes.ROUTINES)
+                },
+                onNavigateToMcpServers = {
+                    navController.navigate(OpenDroidRoutes.MCP_SERVERS)
                 }
             )
         }
@@ -275,6 +279,10 @@ fun OpenDroidNavigation(
             val socialViewModel: SocialViewModel = hiltViewModel()
             SocialScreen(viewModel = socialViewModel)
         }
+
+        composable(OpenDroidRoutes.MCP_SERVERS) {
+            McpServersScreen(onBack = { navController.popBackStack() })
+        }
     }
 }
 
@@ -300,7 +308,8 @@ fun MainDashboard(
     onNavigateToNotificationHistory: () -> Unit = {},
     onNavigateToPermissions: () -> Unit = {},
     onNavigateToCrashLog: () -> Unit = {},
-    onNavigateToRoutines: () -> Unit = {}
+    onNavigateToRoutines: () -> Unit = {},
+    onNavigateToMcpServers: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -434,7 +443,8 @@ fun MainDashboard(
                         onNavigateToNotificationHistory = onNavigateToNotificationHistory,
                         onNavigateToPermissions = onNavigateToPermissions,
                         onNavigateToCrashLog = onNavigateToCrashLog,
-                        onNavigateToRoutines = onNavigateToRoutines
+                        onNavigateToRoutines = onNavigateToRoutines,
+                        onNavigateToMcpServers = onNavigateToMcpServers
                     )
                 }
             }

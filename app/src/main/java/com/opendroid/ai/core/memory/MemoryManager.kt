@@ -194,9 +194,7 @@ class MemoryManager @Inject constructor(
 
     suspend fun searchMemory(query: String): List<Memory> {
         val all = memoryRepository.allMemories.first()
-        return all.filter {
-            it.key.contains(query, ignoreCase = true) || it.value.contains(query, ignoreCase = true)
-        }
+        return MemoryRecallRanker.rank(query, all)
     }
 
     suspend fun cleanPoisonedMemories() {

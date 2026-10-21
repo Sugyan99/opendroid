@@ -735,17 +735,10 @@ class SettingsViewModel @Inject constructor(
         return try {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
                 ?: return false
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val network = connectivityManager.activeNetwork ?: return false
-                val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                    connectivityManager.isActiveNetworkMetered
-            } else {
-                @Suppress("DEPRECATION")
-                val networkInfo = connectivityManager.activeNetworkInfo ?: return false
-                @Suppress("DEPRECATION")
-                networkInfo.type == ConnectivityManager.TYPE_MOBILE
-            }
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                connectivityManager.isActiveNetworkMetered
         } catch (_: Exception) {
             false
         }
