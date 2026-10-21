@@ -62,6 +62,8 @@ data class LLMConfig(
     val alwaysOnSensorsEnabled: Boolean = false,
     /** Android sensor type IDs the user explicitly allowed for sampled event processing. */
     val alwaysOnSensorTypes: Set<Int> = emptySet(),
+    /** Enables wake-word monitoring independently of the floating-button UI. Off by default. */
+    val alwaysOnWakeWordEnabled: Boolean = false,
     val isDarkMode: Boolean = true,
     val lastModelFetch: Map<String, Long> = emptyMap(), // Provider -> last fetch timestamp
     val modelCache: Map<String, List<AIModel>> = emptyMap() // Provider -> cached AIModels list
