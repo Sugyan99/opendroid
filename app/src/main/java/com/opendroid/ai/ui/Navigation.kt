@@ -428,8 +428,7 @@ fun MainDashboard(
                     Screen.Social -> SocialScreen(viewModel = socialViewModel)
                     Screen.Macros -> MacrosScreen(
                         viewModel = macroViewModel,
-                        onNavigateToRoutines = onNavigateToRoutines,
-                        onNavigateToMcpServers = { navController.navigate(OpenDroidRoutes.MCP_SERVERS) }
+                        onNavigateToRoutines = onNavigateToRoutines
                     )
                     Screen.History -> LogsScreen(viewModel = historyViewModel)
                     Screen.Settings -> SettingsScreen(
