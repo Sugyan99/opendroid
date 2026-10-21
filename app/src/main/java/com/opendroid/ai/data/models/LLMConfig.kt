@@ -58,6 +58,10 @@ data class LLMConfig(
     val alwaysOnImportantPackages: Set<String> = emptySet(),
     /** Packages excluded from proactive notification handling. */
     val alwaysOnMutedPackages: Set<String> = emptySet(),
+    /** Continuous hardware sensor sampling is opt-in and off by default. */
+    val alwaysOnSensorsEnabled: Boolean = false,
+    /** Android sensor type IDs the user explicitly allowed for sampled event processing. */
+    val alwaysOnSensorTypes: Set<Int> = emptySet(),
     val isDarkMode: Boolean = true,
     val lastModelFetch: Map<String, Long> = emptyMap(), // Provider -> last fetch timestamp
     val modelCache: Map<String, List<AIModel>> = emptyMap() // Provider -> cached AIModels list
