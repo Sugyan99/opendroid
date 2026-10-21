@@ -86,6 +86,9 @@ class OpenDroidNotificationListener : NotificationListenerService() {
                     val savedEntity = entity.copy(id = id)
                     Log.d(TAG, "Saved notification: ${entity.appName} — ${entity.title}: ${entity.text.take(50)}")
 
+                    // Notification interruption policy is exposed separately for the runtime
+                    // and tested as deterministic logic; do not execute an auto-reply here.
+
                     // Trigger pattern analysis periodically
                     notificationIntelligence.analyzeIfNeeded()
 
