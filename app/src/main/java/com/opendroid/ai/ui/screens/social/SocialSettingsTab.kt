@@ -35,7 +35,6 @@ fun SocialSettingsTab(
     onDeleteRule: (String) -> Unit
 ) {
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var showAddRuleDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -289,7 +288,7 @@ private fun RuleCard(
 @Composable
 private fun AuditLogItem(log: SocialAuditEntry) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("MMM d, HH:mm:ss", currentLocale)
+    val timeFormat = SimpleDateFormat("MMM d, HH:mm:ss", Locale.getDefault())
 
     Card(
         modifier = Modifier.fillMaxWidth()
