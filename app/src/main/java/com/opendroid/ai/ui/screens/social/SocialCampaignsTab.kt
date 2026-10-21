@@ -135,7 +135,7 @@ fun SocialCampaignsTab(
 @Composable
 private fun CampaignCard(campaign: SocialCampaign) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("MMM d", currentLocale)
+    val timeFormat = remember(currentLocale) { SimpleDateFormat("MMM d", currentLocale) }
     val startStr = timeFormat.format(Date(campaign.startDate))
     val endStr = timeFormat.format(Date(campaign.endDate))
 
