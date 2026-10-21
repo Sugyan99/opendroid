@@ -43,9 +43,9 @@ jobs:
           echo "/usr/local/lib/android/sdk/cmdline-tools/16.0/bin" >> "$GITHUB_PATH"
           echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
       - name: Accept Android SDK licenses
-        run: yes | /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
+        run: yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
       - name: Install required Android SDK packages
-        run: /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+        run: /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk "platform-tools" "platforms;android-36" "build-tools;36.0.0"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run unit tests
@@ -80,9 +80,9 @@ jobs:
           echo "/usr/local/lib/android/sdk/cmdline-tools/16.0/bin" >> "$GITHUB_PATH"
           echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
       - name: Accept Android SDK licenses
-        run: yes | /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
+        run: yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
       - name: Install required Android SDK packages
-        run: /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+        run: /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk "platform-tools" "platforms;android-36" "build-tools;36.0.0"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Android lint
