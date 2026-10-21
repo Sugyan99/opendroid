@@ -35,7 +35,6 @@ fun SocialCommentsTab(
     onGenerateSuggestedReply: (SocialComment, (SuggestedReply) -> Unit) -> Unit
 ) {
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var showOnlyUnanswered by remember { mutableStateOf(true) }
     var selectedPlatform by remember { mutableStateOf<SocialPlatform?>(null) }
 
@@ -167,7 +166,7 @@ private fun CommentReviewCard(
     onGenerateReply: ((SuggestedReply) -> Unit) -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(comment.timestamp))
+    val timeFormatted = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(comment.timestamp))
 
     var replyText by remember(comment.id) {
         mutableStateOf(comment.suggestedReply ?: "")
