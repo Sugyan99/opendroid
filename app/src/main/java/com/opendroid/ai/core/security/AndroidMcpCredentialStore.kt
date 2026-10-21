@@ -25,23 +25,23 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
             SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
 
-    override fun write(serverId: String, token: String): CredentialStoreResult {
+    override fun write(serverId: String, token: String): McpCredentialStoreResult {
         requireServerId(serverId)
         if (token.length > MAX_TOKEN_CHARS || token.any { it == '\u0000' || it == '\n' || it == '\r' }) {
-            return CredentialStoreResult.StorageUnavailable
+            return McpCredentialStoreResult.StorageUnavailable
         }
         return when (records.write(
             storageKey(serverId),
             aad(serverId),
             token.toByteArray(StandardCharsets.UTF_8)
         )) {
-            is SecretRecordResult.Success -> CredentialStoreResult.Success
-            SecretRecordResult.Unrecoverable -> CredentialStoreResult.CredentialsMustBeReentered
-            SecretRecordResult.StorageUnavailable -> CredentialStoreResult.StorageUnavailable
+            is SecretRecordResult.Success -> McpCredentialStoreResult.Success
+            SecretRecordResult.Unrecoverable -> McpCredentialStoreResult.CredentialsMustBeReentered
+            SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
     }
 
-    override fun remove(serverId: String): CredentialStoreResult =
+    override fun remove(serverId: String): McpCredentialStoreResult =
         when (records.removeRecord(storageKey(serverId))) {
             is SecretRecordResult.Success -> CredentialStoreResult.Success
             SecretRecordResult.Unrecoverable -> CredentialStoreResult.CredentialsMustBeReentered
