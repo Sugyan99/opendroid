@@ -69,7 +69,7 @@ fun SocialOverviewTab(
             ) {
                 MetricCard(
                     title = "Engagement",
-                    value = summary?.averageEngagementRate?.let { "${String.format("%.1f", it)}%" } ?: "0.0%",
+                    value = summary?.averageEngagementRate?.let { "${String.format(Locale.ROOT, "%.1f", it)}%" } ?: "0.0%",
                     delta = "Active",
                     icon = Icons.Default.TrendingUp,
                     modifier = Modifier.weight(1f)
@@ -291,7 +291,7 @@ fun SocialOverviewTab(
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("${post.reach} reach", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = theme.textPrimary)
-                            Text("${String.format("%.1f", post.engagementRate)}% engage", fontSize = 10.sp, color = theme.textSecondary)
+                            Text("${String.format(Locale.ROOT, "%.1f", post.engagementRate)}% engage", fontSize = 10.sp, color = theme.textSecondary)
                         }
                     }
                 }
@@ -359,8 +359,8 @@ fun SectionHeader(
 
 private fun formatCount(count: Int): String {
     return when {
-        count >= 1_000_000 -> "${String.format("%.1f", count / 1_000_000f)}M"
-        count >= 1_000 -> "${String.format("%.1f", count / 1_000f)}K"
+        count >= 1_000_000 -> "${String.format(Locale.ROOT, "%.1f", count / 1_000_000f)}M"
+        count >= 1_000 -> "${String.format(Locale.ROOT, "%.1f", count / 1_000f)}K"
         else -> count.toString()
     }
 }
