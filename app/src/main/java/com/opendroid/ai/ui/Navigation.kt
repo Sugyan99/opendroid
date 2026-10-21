@@ -308,7 +308,8 @@ fun MainDashboard(
     onNavigateToNotificationHistory: () -> Unit = {},
     onNavigateToPermissions: () -> Unit = {},
     onNavigateToCrashLog: () -> Unit = {},
-    onNavigateToRoutines: () -> Unit = {}
+    onNavigateToRoutines: () -> Unit = {},
+    onNavigateToMcpServers: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -443,7 +444,8 @@ fun MainDashboard(
                         onNavigateToNotificationHistory = onNavigateToNotificationHistory,
                         onNavigateToPermissions = onNavigateToPermissions,
                         onNavigateToCrashLog = onNavigateToCrashLog,
-                        onNavigateToRoutines = onNavigateToRoutines
+                        onNavigateToRoutines = onNavigateToRoutines,
+                        onNavigateToMcpServers = onNavigateToMcpServers
                     )
                 }
             }
