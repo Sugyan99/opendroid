@@ -190,6 +190,25 @@ class OpenDroidService : Service() {
         @Volatile private var activeInstance: OpenDroidService? = null
     }
 
+    /**
+     * Speaks a discreet important-notification alert without reading message content aloud.
+     * This instance-level API is called by the notification listener when policy permits.
+     */
+    fun announceImportantNotification(packageName: String, title: String) {
+        if (showFloatingButton || !::textToSpeechEngine.isInitialized) return
+        if (agentLoop.agentState.value is AgentState.Listening) return
+        val appLabel = runCatching {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
+        }.getOrDefault(packageName.substringAfterLast('.'))
+        val sender = title.takeIf { it.isNotBlank() && it.length <= 80 }
+        val message = if (sender == null) {
+            "Sugyan, $appLabel par ek important notification aaya hai."
+        } else {
+            "Sugyan, $appLabel par $sender se ek important notification aaya hai."
+        }
+        textToSpeechEngine.speak(message)
+    }
+
     private fun startWakeWordDetection() {
         wakeWordDetector.startListening {
             // Wake word detected! Prompt user with a sound or greeting and start listing for query
