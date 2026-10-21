@@ -1,44 +1,36 @@
 package com.opendroid.ai.core.service
 
 import android.app.Notification
-import android.service.notification.StatusBarNotification
 
 /**
  * Deterministic notification interruption rules. Normal notifications are queued;
- * only explicitly important packages or Android high-priority notifications interrupt.
+ * only explicitly important packages or high-priority notification events interrupt.
+ *
+ * Android's legacy priority is used as a signal, not as proof that a message is urgent.
  */
 internal object NotificationInterruptionPolicy {
 
     enum class Decision { IGNORE, QUEUE, INTERRUPT }
 
-    data class Settings(
+    data class Input(
         val enabled: Boolean = true,
-        val interruptForHighPriority: Boolean = true,
+        val packageName: String,
+        val priority: Int = Notification.PRIORITY_DEFAULT,
+        val flags: Int = 0,
         val importantPackages: Set<String> = emptySet(),
-        val mutedPackages: Set<String> = emptySet()
+        val mutedPackages: Set<String> = emptySet(),
+        val interruptForHighPriority: Boolean = true
     )
 
-    fun evaluate(
-        notification: StatusBarNotification,
-        settings: Settings,
-        assistantIsBusy: Boolean
-    ): Decision {
-        if (!settings.enabled) return Decision.IGNORE
-        if (notification.packageName in settings.mutedPackages) return Decision.IGNORE
+    fun evaluate(input: Input): Decision {
+        if (!input.enabled || input.packageName in input.mutedPackages) return Decision.IGNORE
+        if (input.flags and Notification.FLAG_ONGOING_EVENT != 0) return Decision.IGNORE
+        if (input.flags and Notification.FLAG_FOREGROUND_SERVICE != 0) return Decision.IGNORE
 
-        val data = notification.notification ?: return Decision.IGNORE
-        if (data.flags and Notification.FLAG_ONGOING_EVENT != 0) return Decision.IGNORE
-        if (data.flags and Notification.FLAG_FOREGROUND_SERVICE != 0) return Decision.IGNORE
-
-        val explicitlyImportant = notification.packageName in settings.importantPackages
-        val platformHighPriority = settings.interruptForHighPriority &&
-            data.priority >= Notification.PRIORITY_HIGH
-        if (explicitlyImportant || platformHighPriority) return Decision.INTERRUPT
-
-        // Deliberately do not interrupt for ordinary notifications, even when idle.
-        // The caller may later surface them in a digest or assistant inbox.
-        @Suppress("UNUSED_VARIABLE")
-        val currentSessionIsBusy = assistantIsBusy
+        if (input.packageName in input.importantPackages) return Decision.INTERRUPT
+        if (input.interruptForHighPriority && input.priority >= Notification.PRIORITY_HIGH) {
+            return Decision.INTERRUPT
+        }
         return Decision.QUEUE
     }
 }
