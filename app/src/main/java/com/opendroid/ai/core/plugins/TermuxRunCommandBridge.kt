@@ -28,7 +28,7 @@ class TermuxRunCommandBridge @Inject constructor(
         template: TermuxCommandTemplate,
         arguments: Map<String, String>,
         userConfirmed: Boolean,
-        workDirectory: String = "~/ " .trim()
+        workDirectory: String = "~/"
     ): TermuxBridgeResult = withContext(Dispatchers.IO) {
         try {
             val argv = template.buildArgv(arguments, userConfirmed)
