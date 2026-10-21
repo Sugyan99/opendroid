@@ -32,6 +32,7 @@ fun SocialCampaignsTab(
     onCreateCampaign: (String, String, Int, List<SocialPlatform>) -> Unit
 ) {
     val theme = AppTheme.colors
+    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var showCreateDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -134,7 +135,7 @@ fun SocialCampaignsTab(
 @Composable
 private fun CampaignCard(campaign: SocialCampaign) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("MMM d", currentLocale)
     val startStr = timeFormat.format(Date(campaign.startDate))
     val endStr = timeFormat.format(Date(campaign.endDate))
 
