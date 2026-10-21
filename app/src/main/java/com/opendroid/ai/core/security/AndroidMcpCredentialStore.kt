@@ -16,7 +16,7 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
         cipher = AndroidKeyStoreAeadCipher(KEY_ALIAS)
     )
 
-    override fun read(serverId: String): CredentialStoreResult =
+    override fun read(serverId: String): McpCredentialStoreResult =
         when (val result = records.read(storageKey(serverId), aad(serverId))) {
             is SecretRecordResult.Success -> CredentialStoreResult.Success(
                 result.value?.let { String(it, StandardCharsets.UTF_8) }
