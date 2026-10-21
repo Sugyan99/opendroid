@@ -55,13 +55,13 @@ data class TermuxCommandTemplate(
     }
 }
 
-/** Built-in starter profiles are read-only and deliberately narrow. User must configure Termux. */
+/** Built-in starter profiles are read-only and deliberately narrow. */
 object TermuxReadOnlyTemplates {
     val templates = listOf(
         TermuxCommandTemplate(
             id = "termux.whoami",
             displayName = "Show current Termux user",
-            executable = "${'
+            executable = "${'$'}PREFIX/bin/whoami",
             fixedArguments = emptyList(),
             allowedArgumentNames = emptySet(),
             mutating = false
@@ -69,44 +69,7 @@ object TermuxReadOnlyTemplates {
         TermuxCommandTemplate(
             id = "termux.pwd",
             displayName = "Show configured working directory",
-            executable = "${'
-            fixedArguments = emptyList(),
-            allowedArgumentNames = emptySet(),
-            mutating = false
-        )
-    )
-}
-}PREFIX/bin/whoami",
-            fixedArguments = emptyList(),
-            allowedArgumentNames = emptySet(),
-            mutating = false
-        ),
-        TermuxCommandTemplate(
-            id = "termux.pwd",
-            displayName = "Show configured working directory",
-            executable = "pwd",
-            fixedArguments = emptyList(),
-            allowedArgumentNames = emptySet(),
-            mutating = false
-        )
-    )
-}
-}PREFIX/bin/pwd",
-            fixedArguments = emptyList(),
-            allowedArgumentNames = emptySet(),
-            mutating = false
-        )
-    )
-}
-}PREFIX/bin/whoami",
-            fixedArguments = emptyList(),
-            allowedArgumentNames = emptySet(),
-            mutating = false
-        ),
-        TermuxCommandTemplate(
-            id = "termux.pwd",
-            displayName = "Show configured working directory",
-            executable = "pwd",
+            executable = "${'$'}PREFIX/bin/pwd",
             fixedArguments = emptyList(),
             allowedArgumentNames = emptySet(),
             mutating = false
