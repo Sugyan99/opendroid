@@ -35,7 +35,7 @@ fun SocialAnalyticsTab(
     onRefresh: () -> Unit
 ) {
     val theme = AppTheme.colors
-    var selectedRangeDays by remember { mutableStateOf(7) }
+    var selectedRangeDays by remember { mutableIntStateOf(7) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -95,7 +95,7 @@ fun SocialAnalyticsTab(
             ) {
                 AnalyticsMetricBox(
                     title = "Engagement",
-                    value = summary?.averageEngagementRate?.let { "${String.format("%.1f", it)}%" } ?: "0.0%",
+                    value = summary?.averageEngagementRate?.let { "${String.format(Locale.ROOT, "%.1f", it)}%" } ?: "0.0%",
                     delta = "Active",
                     modifier = Modifier.weight(1f)
                 )
@@ -292,8 +292,8 @@ private fun LegendItem(label: String, percent: String, color: Color) {
 
 private fun formatCount(count: Long): String {
     return when {
-        count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
-        count >= 1_000 -> String.format("%.1fK", count / 1_000.0)
+        count >= 1_000_000 -> String.format(Locale.ROOT, "%.1fM", count / 1_000_000.0)
+        count >= 1_000 -> String.format(Locale.ROOT, "%.1fK", count / 1_000.0)
         else -> count.toString()
     }
 }
