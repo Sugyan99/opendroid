@@ -91,6 +91,34 @@ class McpServersViewModel @Inject constructor(
         }
     }
 
+    fun setServerEnabled(id: String, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { repository.setEnabled(id, enabled) }
+                .onSuccess {
+                    _status.value = if (enabled) {
+                        "Server enabled. Tool execution is still gated until the agent adapter is connected."
+                    } else {
+                        "Server disabled."
+                    }
+                }
+                .onFailure { _status.value = "Unable to update server state." }
+        }
+    }
+
+    fun setToolApproved(id: String, toolName: String, approved: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { repository.setToolApproved(id, toolName, approved) }
+                .onSuccess {
+                    _status.value = if (approved) {
+                        "Tool reviewed and approved for future agent integration: $toolName"
+                    } else {
+                        "Tool approval revoked: $toolName"
+                    }
+                }
+                .onFailure { _status.value = "Unable to update tool approval." }
+        }
+    }
+
     fun remove(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
