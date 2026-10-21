@@ -33,7 +33,6 @@ fun SocialAccountsTab(
     onRefresh: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var connectingPlatform by remember { mutableStateOf<SocialPlatform?>(null) }
     var revokingAccount by remember { mutableStateOf<SocialAccount?>(null) }
 
@@ -261,7 +260,7 @@ private fun AccountCard(
                 ) {
                     val lastSync = account.lastSyncAt
                     val syncText = if (lastSync != null && lastSync > 0) {
-                        "Synced " + SimpleDateFormat("MMM d, HH:mm", currentLocale).format(Date(lastSync))
+                        "Synced " + SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(lastSync))
                     } else {
                         "Not synced yet"
                     }
