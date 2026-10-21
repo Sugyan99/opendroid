@@ -1730,7 +1730,7 @@ fun SettingsScreen(
                             color = AccentCyan
                         )
                         Text(
-                            text = "Receive discreet alerts for important notifications while OpenDroid is active. Normal notifications are stored without interrupting your conversation. For wake-word listening, grant microphone permission and turn off the existing Show Floating Button setting.",
+                            text = "Receive discreet alerts for important notifications while OpenDroid is active. Normal notifications are stored without interrupting your conversation. Wake-word listening is a separate opt-in and requires microphone permission.",
                             fontSize = 12.sp,
                             color = TextSecondary
                         )
@@ -1747,6 +1747,27 @@ fun SettingsScreen(
                             border = BorderStroke(1.dp, BorderColor)
                         ) {
                             Text("Open Android notification access settings", color = TextPrimary)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Always-on wake-word listening", color = TextPrimary, fontSize = 14.sp)
+                                Text("Say “OpenDroid” to activate the voice assistant", color = TextSecondary, fontSize = 11.sp)
+                            }
+                            Switch(
+                                checked = config.alwaysOnWakeWordEnabled,
+                                onCheckedChange = viewModel::updateAlwaysOnWakeWordEnabled
+                            )
+                        }
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onNavigateToPermissions,
+                            border = BorderStroke(1.dp, BorderColor)
+                        ) {
+                            Text("Open microphone permissions", color = TextPrimary)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
