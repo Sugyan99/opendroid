@@ -109,10 +109,18 @@ class McpHttpClient @Inject constructor(
         if (toolName.isBlank() || toolName.length > 256) {
             return McpConnectionResult.Failure("Tool name is invalid.")
         }
-        return request(endpoint, "tools/call", buildJsonObject {
-            put("name", toolName)
-            put("arguments", arguments)
-        }, bearerToken)
+        return withContext(Dispatchers.IO) {
+            // Tools may run only against an endpoint that completed the MCP handshake.
+            if (sessionIds[endpoint].isNullOrBlank()) {
+                return@withContext McpConnectionResult.Failure(
+                    "Connect to and initialize this MCP server before invoking a tool."
+                )
+            }
+            request(endpoint, "tools/call", buildJsonObject {
+                put("name", toolName)
+                put("arguments", arguments)
+            }, bearerToken)
+        }
     }
 
     private suspend fun request(
