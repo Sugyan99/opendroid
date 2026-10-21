@@ -62,6 +62,7 @@ class OpenDroidService : Service() {
     }
 
     override fun onCreate() {
+        activeInstance = this
         super.onCreate()
         
         // Initialize engines
@@ -159,6 +160,36 @@ class OpenDroidService : Service() {
         }
     }
 
+    /**
+     * Announces an important incoming notification without exposing message contents.
+     * Called by the notification listener only after the interruption policy accepts it.
+     */
+    fun announceImportantNotification(packageName: String, title: String) {
+        if (showFloatingButton) return
+        if (agentLoop.agentState.value is AgentState.Listening) return
+        val appLabel = runCatching {
+            packageManager.getApplicationLabel(
+                packageManager.getApplicationInfo(packageName, 0)
+            ).toString()
+        }.getOrDefault(packageName.substringAfterLast('.'))
+        val sender = title.takeIf { it.isNotBlank() && it.length <= 80 }
+        val message = if (sender == null) {
+            "Sugyan, $appLabel par ek important notification aaya hai."
+        } else {
+            "Sugyan, $appLabel par $sender se ek important notification aaya hai."
+        }
+        textToSpeechEngine.speak(message)
+    }
+
+    companion object {
+        fun announceImportantNotification(context: Context, packageName: String, title: String) {
+            val service = activeInstance ?: return
+            service.announceImportantNotification(packageName, title)
+        }
+
+        @Volatile private var activeInstance: OpenDroidService? = null
+    }
+
     private fun startWakeWordDetection() {
         wakeWordDetector.startListening {
             // Wake word detected! Prompt user with a sound or greeting and start listing for query
@@ -236,6 +267,7 @@ class OpenDroidService : Service() {
     }
 
     override fun onDestroy() {
+        activeInstance = null
         super.onDestroy()
         serviceScope.cancel()
         mcpServer.stop()
