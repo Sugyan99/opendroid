@@ -182,10 +182,6 @@ object StorageWorkspaceProvider {
                     canonical.startsWith(Environment.getExternalStorageDirectory().path.trimEnd('/') + "/")
                 ) {
                     canonical.removePrefix(Environment.getExternalStorageDirectory().path).trimStart('/')
-                } else if (canonical == "/storage/emulated/0" ||
-                    canonical.startsWith("/storage/emulated/0/")
-                ) {
-                    canonical.removePrefix("/storage/emulated/0").trimStart('/')
                 } else {
                     File(canonical).name
                 }
