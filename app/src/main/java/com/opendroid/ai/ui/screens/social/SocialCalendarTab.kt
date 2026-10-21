@@ -34,7 +34,6 @@ fun SocialCalendarTab(
     onNavigateToComposer: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val currentLocale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
     var selectedDayIndex by remember { mutableIntStateOf(0) }
     var reschedulingPostId by remember { mutableStateOf<String?>(null) }
 
@@ -294,7 +293,7 @@ private fun ScheduledPostCard(
     onCancel: () -> Unit
 ) {
     val theme = AppTheme.colors
-    val timeFormat = SimpleDateFormat("HH:mm", currentLocale)
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val timeString = post.scheduledPublishTime?.let { timeFormat.format(Date(it)) } ?: "--:--"
 
     Card(
