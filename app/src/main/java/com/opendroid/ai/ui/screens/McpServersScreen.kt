@@ -3,6 +3,7 @@ package com.opendroid.ai.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.opendroid.ai.core.mcp.McpConnectionResult
 import com.opendroid.ai.ui.viewmodel.McpServersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +72,11 @@ fun McpServersScreen(
             Text(
                 "Connect external tools through an MCP server. The server must already be running and reachable. " +
                     "HTTPS is required except for explicit localhost development endpoints. Standard stdio servers need a configured bridge."
+            )
+            Text(
+                "This screen discovers and reviews tools; agent-side execution is not enabled yet. Approving a tool here records your choice but does not run it.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.secondary
             )
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
