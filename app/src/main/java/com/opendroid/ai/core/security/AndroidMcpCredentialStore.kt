@@ -43,9 +43,9 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
 
     override fun remove(serverId: String): McpCredentialStoreResult =
         when (records.removeRecord(storageKey(serverId))) {
-            is SecretRecordResult.Success -> CredentialStoreResult.Success
-            SecretRecordResult.Unrecoverable -> CredentialStoreResult.CredentialsMustBeReentered
-            SecretRecordResult.StorageUnavailable -> CredentialStoreResult.StorageUnavailable
+            is SecretRecordResult.Success -> McpCredentialStoreResult.Success
+            SecretRecordResult.Unrecoverable -> McpCredentialStoreResult.CredentialsMustBeReentered
+            SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
 
     private fun storageKey(serverId: String): String {
