@@ -35,7 +35,7 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
             aad(serverId),
             token.toByteArray(StandardCharsets.UTF_8)
         )) {
-            is SecretRecordResult.Success -> McpCredentialStoreResult.Success
+            is SecretRecordResult.Success -> McpCredentialStoreResult.Success()
             SecretRecordResult.Unrecoverable -> McpCredentialStoreResult.CredentialsMustBeReentered
             SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
@@ -43,7 +43,7 @@ class AndroidMcpCredentialStore(context: Context) : McpCredentialStore {
 
     override fun remove(serverId: String): McpCredentialStoreResult =
         when (records.removeRecord(storageKey(serverId))) {
-            is SecretRecordResult.Success -> McpCredentialStoreResult.Success
+            is SecretRecordResult.Success -> McpCredentialStoreResult.Success()
             SecretRecordResult.Unrecoverable -> McpCredentialStoreResult.CredentialsMustBeReentered
             SecretRecordResult.StorageUnavailable -> McpCredentialStoreResult.StorageUnavailable
         }
