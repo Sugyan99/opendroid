@@ -46,9 +46,9 @@ class OpenDroidService : Service() {
     @Volatile private var pendingApprovalListen = false
 
     companion object {
-        @Volatile private var runningInstance: OpenDroidService? = null
+        @Volatile private var activeInstance: OpenDroidService? = null
 
-        fun getRunningInstance(): OpenDroidService? = runningInstance
+        fun getRunningInstance(): OpenDroidService? = activeInstance
 
         const val ACTION_TRIGGER_RECORD = "com.opendroid.ai.action.TRIGGER_RECORD"
         private const val CHANNEL_ID = "opendroid_channel"
@@ -169,40 +169,12 @@ class OpenDroidService : Service() {
      * Called by the notification listener only after the interruption policy accepts it.
      */
     fun announceImportantNotification(packageName: String, title: String) {
-        if (showFloatingButton) return
+        if (showFloatingButton || !::textToSpeechEngine.isInitialized) return
         if (agentLoop.agentState.value is AgentState.Listening) return
         val appLabel = runCatching {
             packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(packageName, 0)
             ).toString()
-        }.getOrDefault(packageName.substringAfterLast('.'))
-        val sender = title.takeIf { it.isNotBlank() && it.length <= 80 }
-        val message = if (sender == null) {
-            "Sugyan, $appLabel par ek important notification aaya hai."
-        } else {
-            "Sugyan, $appLabel par $sender se ek important notification aaya hai."
-        }
-        textToSpeechEngine.speak(message)
-    }
-
-    companion object {
-        fun announceImportantNotification(context: Context, packageName: String, title: String) {
-            val service = activeInstance ?: return
-            service.announceImportantNotification(packageName, title)
-        }
-
-        @Volatile private var activeInstance: OpenDroidService? = null
-    }
-
-    /**
-     * Speaks a discreet important-notification alert without reading message content aloud.
-     * This instance-level API is called by the notification listener when policy permits.
-     */
-    fun announceImportantNotification(packageName: String, title: String) {
-        if (showFloatingButton || !::textToSpeechEngine.isInitialized) return
-        if (agentLoop.agentState.value is AgentState.Listening) return
-        val appLabel = runCatching {
-            packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
         }.getOrDefault(packageName.substringAfterLast('.'))
         val sender = title.takeIf { it.isNotBlank() && it.length <= 80 }
         val message = if (sender == null) {
