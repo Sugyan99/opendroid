@@ -2535,6 +2535,7 @@ fun SettingsScreen(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("External Integrations", color = TextPrimary, fontWeight = FontWeight.SemiBold)
             Text("Connect compatible MCP servers and review their available tools.", color = TextSecondary, fontSize = 12.sp)
+            Text("Termux bridge setup and memory recall ranking are included in this feature branch; MCP execution from agent plans is still pending.", color = TextSecondary, fontSize = 11.sp)
             Button(
                 onClick = onNavigateToMcpServers,
                 colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
