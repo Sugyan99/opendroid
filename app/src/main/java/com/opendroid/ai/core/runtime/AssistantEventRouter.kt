@@ -30,8 +30,9 @@ class AssistantEventRouter @Inject constructor() {
     }
 
     /**
-     * Returns false for a duplicate or when no subscriber can accept an event immediately.
-     * DROP_OLDEST means a busy subscriber never blocks Android service callbacks.
+     * Returns false for a duplicate event ID. The bounded DROP_OLDEST buffer prevents
+     * high-rate sources from blocking Android service callbacks or growing memory forever.
+     * With no active collector, SharedFlow intentionally does not persist events for later.
      */
     fun publish(event: AssistantEvent): Boolean {
         synchronized(seenIds) {
