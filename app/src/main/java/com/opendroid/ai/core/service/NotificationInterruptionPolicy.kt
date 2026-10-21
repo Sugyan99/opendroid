@@ -4,19 +4,12 @@ import android.app.Notification
 import android.service.notification.StatusBarNotification
 
 /**
- * Keeps incoming notification alerts deterministic and independent of LLM latency.
- *
- * A normal message is queued silently by default. Only notifications that match an
- * explicit user preference or an Android high-priority signal may interrupt voice
- * interaction. This policy does not trigger auto-replies or execute actions.
+ * Deterministic notification interruption rules. Normal notifications are queued;
+ * only explicitly important packages or Android high-priority notifications interrupt.
  */
 internal object NotificationInterruptionPolicy {
 
-    enum class Decision {
-        IGNORE,
-        QUEUE,
-        INTERRUPT
-    }
+    enum class Decision { IGNORE, QUEUE, INTERRUPT }
 
     data class Settings(
         val enabled: Boolean = true,
@@ -37,13 +30,15 @@ internal object NotificationInterruptionPolicy {
         if (data.flags and Notification.FLAG_ONGOING_EVENT != 0) return Decision.IGNORE
         if (data.flags and Notification.FLAG_FOREGROUND_SERVICE != 0) return Decision.IGNORE
 
-        val hasUserPriority = notification.packageName in settings.importantPackages
-        val isHighPriority = settings.interruptForHighPriority &&
+        val explicitlyImportant = notification.packageName in settings.importantPackages
+        val platformHighPriority = settings.interruptForHighPriority &&
             data.priority >= Notification.PRIORITY_HIGH
-        if (hasUserPriority || isHighPriority) return Decision.INTERRUPT
+        if (explicitlyImportant || platformHighPriority) return Decision.INTERRUPT
 
-        // A notification may be surfaced in the UI later, but should not interrupt
-        // an active command or spoken response by default.
-        return if (assistantIsBusy) Decision.QUEUE else Decision.QUEUE
+        // Deliberately do not interrupt for ordinary notifications, even when idle.
+        // The caller may later surface them in a digest or assistant inbox.
+        @Suppress("UNUSED_VARIABLE")
+        val currentSessionIsBusy = assistantIsBusy
+        return Decision.QUEUE
     }
 }
