@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -27,6 +28,7 @@ class OpenDroidNotificationListener : NotificationListenerService() {
     @Inject lateinit var notificationDao: NotificationDao
     @Inject lateinit var autoReplyEngine: AutoReplyEngine
     @Inject lateinit var notificationIntelligence: NotificationIntelligence
+    @Inject lateinit var settingsRepository: com.opendroid.ai.data.repository.SettingsRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -85,6 +87,26 @@ class OpenDroidNotificationListener : NotificationListenerService() {
                     val id = notificationDao.insertNotification(entity)
                     val savedEntity = entity.copy(id = id)
                     Log.d(TAG, "Saved notification: ${entity.appName} — ${entity.title}: ${entity.text.take(50)}")
+
+                    // Proactive notifications are opt-in and do not alter auto-reply behavior.
+                    val config = settingsRepository.llmConfig.first()
+                    val decision = NotificationInterruptionPolicy.evaluate(
+                        NotificationInterruptionPolicy.Input(
+                            enabled = config.alwaysOnNotificationsEnabled,
+                            packageName = sbn.packageName,
+                            priority = notification.priority,
+                            flags = notification.flags,
+                            importantPackages = config.alwaysOnImportantPackages,
+                            mutedPackages = config.alwaysOnMutedPackages,
+                            interruptForHighPriority = config.alwaysOnHighPriorityInterrupts
+                        )
+                    )
+                    if (decision == NotificationInterruptionPolicy.Decision.INTERRUPT) {
+                        OpenDroidService.getRunningInstance()?.announceImportantNotification(
+                            sbn.packageName,
+                            entity.title
+                        )
+                    }
 
                     // Trigger pattern analysis periodically
                     notificationIntelligence.analyzeIfNeeded()
