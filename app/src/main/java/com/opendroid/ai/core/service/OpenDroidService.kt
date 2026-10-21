@@ -10,6 +10,8 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.opendroid.ai.core.agent.AgentLoop
 import com.opendroid.ai.core.agent.AgentState
+import com.opendroid.ai.core.runtime.AssistantEvent
+import com.opendroid.ai.core.runtime.AssistantEventRouter
 import com.opendroid.ai.core.voice.SpeechRecognitionEngine
 import com.opendroid.ai.core.voice.TextToSpeechEngine
 import com.opendroid.ai.core.voice.VoiceApprovalIntent
@@ -36,6 +38,9 @@ class OpenDroidService : Service() {
 
     @Inject
     lateinit var mcpServer: McpServer
+
+    @Inject
+    lateinit var assistantEventRouter: AssistantEventRouter
 
     private lateinit var wakeWordDetector: WakeWordDetector
     private lateinit var speechRecognitionEngine: SpeechRecognitionEngine
@@ -219,6 +224,12 @@ class OpenDroidService : Service() {
 
     private fun startWakeWordDetection() {
         wakeWordDetector.startListening {
+            assistantEventRouter.publish(
+                AssistantEvent.WakeWordDetected(
+                    eventId = "wake:${System.currentTimeMillis()}",
+                    timestampMs = System.currentTimeMillis()
+                )
+            )
             // Wake word detected! Prompt user with a sound or greeting and start listing for query
             textToSpeechEngine.speak("OpenDroid online.")
             startListeningForQuery()
@@ -235,6 +246,13 @@ class OpenDroidService : Service() {
         // Start speech recognizer for query input
         speechRecognitionEngine.startListening(
             onResult = { query ->
+                assistantEventRouter.publish(
+                    AssistantEvent.UserCommandReceived(
+                        eventId = "command:${System.currentTimeMillis()}",
+                        timestampMs = System.currentTimeMillis(),
+                        command = query
+                    )
+                )
                 agentLoop.processQuery(query, this)
                 // Resume wake word detection only if floating button is disabled
                 if (!showFloatingButton) {
