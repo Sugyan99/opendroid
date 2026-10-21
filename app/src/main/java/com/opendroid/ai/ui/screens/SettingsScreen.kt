@@ -60,6 +60,8 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -1731,6 +1733,20 @@ fun SettingsScreen(
                             fontSize = 12.sp,
                             color = TextSecondary
                         )
+                        val notificationSettingsContext = LocalContext.current
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                runCatching {
+                                    notificationSettingsContext.startActivity(
+                                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                    )
+                                }
+                            },
+                            border = BorderStroke(1.dp, BorderColor)
+                        ) {
+                            Text("Open Android notification access settings", color = TextPrimary)
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
