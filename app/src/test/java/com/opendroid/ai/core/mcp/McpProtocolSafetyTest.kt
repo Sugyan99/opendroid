@@ -1,6 +1,5 @@
 package com.opendroid.ai.core.mcp
 
-import androidx.test.core.app.ApplicationProvider
 import com.opendroid.ai.core.plugins.TermuxCommandTemplate
 import com.opendroid.ai.core.plugins.ToolArgumentValidator
 import kotlinx.serialization.json.Json
