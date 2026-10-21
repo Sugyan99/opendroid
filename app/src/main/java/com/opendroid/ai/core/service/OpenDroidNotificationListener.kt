@@ -7,6 +7,8 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.opendroid.ai.core.agent.AutoReplyEngine
 import com.opendroid.ai.core.memory.NotificationIntelligence
+import com.opendroid.ai.core.runtime.AssistantEvent
+import com.opendroid.ai.core.runtime.AssistantEventRouter
 import com.opendroid.ai.data.db.dao.NotificationDao
 import com.opendroid.ai.data.db.entities.NotificationEntity
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +30,7 @@ class OpenDroidNotificationListener : NotificationListenerService() {
     @Inject lateinit var notificationDao: NotificationDao
     @Inject lateinit var autoReplyEngine: AutoReplyEngine
     @Inject lateinit var notificationIntelligence: NotificationIntelligence
+    @Inject lateinit var assistantEventRouter: AssistantEventRouter
     @Inject lateinit var settingsRepository: com.opendroid.ai.data.repository.SettingsRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -87,6 +90,19 @@ class OpenDroidNotificationListener : NotificationListenerService() {
                     val id = notificationDao.insertNotification(entity)
                     val savedEntity = entity.copy(id = id)
                     Log.d(TAG, "Saved notification: ${entity.appName} — ${entity.title}: ${entity.text.take(50)}")
+
+                    // Fan out metadata only; message bodies stay in the existing protected history
+                    // and are not copied into the always-on event stream.
+                    assistantEventRouter.publish(
+                        AssistantEvent.NotificationReceived(
+                            eventId = "notification:${sbn.key}:${sbn.postTime}",
+                            timestampMs = sbn.postTime,
+                            packageName = sbn.packageName,
+                            title = entity.contactName ?: entity.title,
+                            category = entity.category,
+                            priority = notification.priority
+                        )
+                    )
 
                     // Proactive notifications are opt-in and do not alter auto-reply behavior.
                     val config = settingsRepository.llmConfig.first()
