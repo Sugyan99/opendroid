@@ -86,7 +86,7 @@ fun McpServersScreen(
                     OutlinedTextField(
                         token,
                         { token = it },
-                        label = { Text("Bearer token (optional; not saved)") },
+                        label = { Text("Bearer token (optional; stored encrypted)") },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -100,7 +100,7 @@ fun McpServersScreen(
                         Spacer(Modifier.height(2.dp))
                         Text(if (checking) "Testing…" else "Test and add")
                     }
-                    Text("Security: this first version does not persist bearer tokens. Tools are only listed after a successful protocol handshake.")
+                    Text("Bearer credentials are stored with Android Keystore-backed encryption. Tools are listed only after a successful protocol handshake.")
                 }
             }
             status?.let { Text(it, color = MaterialTheme.colorScheme.secondary) }
