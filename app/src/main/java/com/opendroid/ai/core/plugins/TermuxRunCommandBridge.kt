@@ -3,6 +3,7 @@ package com.opendroid.ai.core.plugins
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -34,7 +35,12 @@ class TermuxRunCommandBridge @Inject constructor(
             val argv = template.buildArgv(arguments, userConfirmed)
             if (argv.isEmpty()) return@withContext TermuxBridgeResult.Failure("Empty command.")
             val packageInfo = try {
-                context.packageManager.getPackageInfo("com.termux", PackageManager.PackageInfoFlags.of(0))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.packageManager.getPackageInfo("com.termux", PackageManager.PackageInfoFlags.of(0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo("com.termux", 0)
+                }
             } catch (_: Exception) {
                 return@withContext TermuxBridgeResult.Failure("Termux is not installed or is not visible to OpenDroid.")
             }
