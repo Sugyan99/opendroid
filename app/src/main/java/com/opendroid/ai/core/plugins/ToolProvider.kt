@@ -1,6 +1,7 @@
 package com.opendroid.ai.core.plugins
 
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.put
 
 /**
  * A single tool normalized for the OpenDroid agent. Providers must not be able to
