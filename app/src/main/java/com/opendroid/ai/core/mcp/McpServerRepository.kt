@@ -21,7 +21,9 @@ data class McpSavedServer(
     val id: String,
     val name: String,
     val endpoint: String,
-    val tools: List<McpSavedTool>
+    val tools: List<McpSavedTool>,
+    val approvedToolNames: Set<String> = emptySet(),
+    val enabled: Boolean = false
 )
 
 /**
@@ -70,6 +72,25 @@ class McpServerRepository @Inject constructor(context: Context) {
         mutableServers.value = updated
     }
 
+    fun setEnabled(id: String, enabled: Boolean) {
+        update(id) { it.copy(enabled = enabled) }
+    }
+
+    fun setToolApproved(id: String, toolName: String, approved: Boolean) {
+        update(id) { server ->
+            val names = if (approved) server.approvedToolNames + toolName else server.approvedToolNames - toolName
+            server.copy(approvedToolNames = names)
+        }
+    }
+
+    private fun update(id: String, transform: (McpSavedServer) -> McpSavedServer) {
+        val updated = mutableServers.value.map { if (it.id == id) transform(it) else it }
+        check(prefs.edit().putString(KEY_SERVERS, encode(updated)).commit()) {
+            "Unable to update MCP server permissions."
+        }
+        mutableServers.value = updated
+    }
+
     fun get(id: String): McpSavedServer? = mutableServers.value.firstOrNull { it.id == id }
 
     @Synchronized
@@ -98,7 +119,16 @@ class McpServerRepository @Inject constructor(context: Context) {
             val id = obj.optString("id").takeIf { it.isNotBlank() } ?: return@mapNotNull null
             val name = obj.optString("name").takeIf { it.isNotBlank() } ?: return@mapNotNull null
             val endpoint = obj.optString("endpoint").takeIf { it.isNotBlank() } ?: return@mapNotNull null
-            McpSavedServer(id, name, endpoint, tools)
+            McpSavedServer(
+                id, name, endpoint, tools,
+                approvedToolNames = buildSet {
+                    val approvals = obj.optJSONArray("approvedToolNames") ?: JSONArray()
+                    for (approvalIndex in 0 until approvals.length()) {
+                        approvals.optString(approvalIndex).takeIf { it.isNotBlank() }?.let(::add)
+                    }
+                },
+                enabled = obj.optBoolean("enabled", false)
+            )
         }
     }.getOrDefault(emptyList())
 
@@ -109,7 +139,10 @@ class McpServerRepository @Inject constructor(context: Context) {
             server.tools.forEach { tool ->
                 tools.put(JSONObject().put("name", tool.name).put("description", tool.description).put("inputSchema", tool.inputSchemaJson))
             }
-            root.put(JSONObject().put("id", server.id).put("name", server.name).put("endpoint", server.endpoint).put("tools", tools))
+            val approvals = JSONArray()
+            server.approvedToolNames.forEach { approvals.put(it) }
+            root.put(JSONObject().put("id", server.id).put("name", server.name).put("endpoint", server.endpoint)
+                .put("tools", tools).put("approvedToolNames", approvals).put("enabled", server.enabled))
         }
         return root.toString()
     }
