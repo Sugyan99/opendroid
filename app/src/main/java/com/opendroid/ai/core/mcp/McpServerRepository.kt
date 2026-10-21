@@ -100,7 +100,14 @@ class McpServerRepository @Inject constructor(context: Context) {
             val toolName = obj.optString("name").takeIf { it.isNotBlank() } ?: return@mapNotNull null
             McpSavedTool(toolName.take(256), obj.optString("description", "").take(1000), obj.optJSONObject("inputSchema")?.toString() ?: "{}")
         }
-        val updated = mutableServers.value.map { if (it.id == id) it.copy(tools = converted) else it }
+        val availableNames = converted.map { it.name }.toSet()
+        // A server's tool listing may change. Remove approvals for tools no longer offered.
+        val updated = mutableServers.value.map {
+            if (it.id == id) it.copy(
+                tools = converted,
+                approvedToolNames = it.approvedToolNames intersect availableNames
+            ) else it
+        }
         check(prefs.edit().putString(KEY_SERVERS, encode(updated)).commit()) {
             "Unable to update MCP server metadata."
         }
