@@ -55,9 +55,11 @@ class AssistantEventProcessor @Inject constructor() {
                     sensorEvents = previous.sensorEvents + 1,
                     lastEventKind = "sensor",
                     latestSensorValues = (previous.latestSensorValues +
-                        (event.sensorType to event.values.toList())).entries
+                        (event.sensorType to event.values.toList()))
+                        .entries
+                        .toList()
                         .takeLast(MAX_TRACKED_SENSOR_TYPES)
-                        .associate { it.toPair() }
+                        .associate { entry -> entry.key to entry.value }
                 )
             }
         }
