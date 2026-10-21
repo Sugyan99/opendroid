@@ -34,9 +34,9 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MacrosScreen(
+    modifier: Modifier = Modifier,
     viewModel: MacroViewModel,
-    onNavigateToRoutines: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onNavigateToRoutines: () -> Unit = {}
 ) {
     val macros by viewModel.macros.collectAsState()
     
