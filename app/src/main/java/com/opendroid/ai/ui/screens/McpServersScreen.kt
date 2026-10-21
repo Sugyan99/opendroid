@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,9 +108,29 @@ fun McpServersScreen(
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(server.name, style = MaterialTheme.typography.titleSmall)
                             Text(server.endpoint, style = MaterialTheme.typography.bodySmall)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Enable server tools")
+                                Switch(
+                                    checked = server.enabled,
+                                    onCheckedChange = { viewModel.setServerEnabled(server.id, it) }
+                                )
+                            }
                             Text("Discovered tools: ${server.tools.size}")
+                            Text(
+                                "Review each tool before enabling it. Approved tools may be exposed to the agent only after provider integration and local risk checks.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                             server.tools.forEach { tool ->
-                                Text("• ${tool.name}: ${tool.description.take(180)}", style = MaterialTheme.typography.bodySmall)
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Checkbox(
+                                        checked = tool.name in server.approvedToolNames,
+                                        onCheckedChange = { approved -> viewModel.setToolApproved(server.id, tool.name, approved) }
+                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(tool.name, style = MaterialTheme.typography.bodyMedium)
+                                        Text(tool.description.take(180), style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(onClick = { viewModel.refresh(server.id) }, enabled = !checking) {
